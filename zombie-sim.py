@@ -62,9 +62,8 @@ def wrapDiff(diff):
 def collisionOffset(start, lead, target, mag):
     ratio = lead / mag
     if target < 0:
-        return start + target * ratio - (1. - ratio) * mag
-    else:
-        return start + target * ratio + (1. - ratio) * mag
+        mag = -mag
+    return (start + target * ratio + (1. - ratio) * mag) % 1.
 
 def move(circle, vec, mag):
     y = (circle.center[0] + vec[0]) % 1.
@@ -74,18 +73,18 @@ def move(circle, vec, mag):
         xdiff = x - .5
         if ydiff < xdiff:
             if ydiff < -xdiff:
-                x = collisionOffset(circle.center[1], bottom - y, vec[1], mag)
-                y = left
+                x = collisionOffset(circle.center[1], bottom - circle.center[0], vec[1], mag)
+                y = bottom
             else:
-                y = collisionOffset(circle.center[0], x - right, vec[0], mag)
+                y = collisionOffset(circle.center[0], circle.center[1] - right, vec[0], mag)
                 x = right
         else:
             if ydiff < -xdiff:
-                y = collisionOffset(circle.center[0], left - x, vec[0], mag)
+                y = collisionOffset(circle.center[0], left - circle.center[1], vec[0], mag)
                 x = left
             else:
-                x = collisionOffset(circle.center[1], y - top, vec[1], mag)
-                y = right
+                x = collisionOffset(circle.center[1], circle.center[0] - top, vec[1], mag)
+                y = top
     circle.center = (y, x)
 
 """
