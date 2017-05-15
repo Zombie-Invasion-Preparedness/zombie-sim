@@ -12,6 +12,7 @@ pop_human = 40
 pop_zombie = 12
 speed_human = .004
 speed_zombie = .0044
+speed_spread = .0005
 zombie_life = 200
 zombie_range = .35
 radius = .01
@@ -19,8 +20,8 @@ radius = .01
 """
 constants
 """
-color_human = (0., 1., 0.)
-color_zombie = (1., 0., 0.)
+color_human = (0., .9, 0.)
+color_zombie = (.9, 0., 0.)
 
 # used in the main loop
 two_radius_sq = (radius * 2) ** 2
@@ -109,10 +110,12 @@ humans = []
 zombies = []
 for i in range(pop_human):
     c = plt.Circle(newPos(), radius, color=color_human)
+    c.speed = np.random.normal(speed_human, speed_spread)
     humans.append(c)
     ax.add_artist(c)
 for i in range(pop_zombie):
     c = plt.Circle(newPos(), radius, color=color_zombie)
+    c.speed = np.random.normal(speed_zombie, speed_spread)
     c.life = zombie_life
     zombies.append(c)
     ax.add_artist(c)
@@ -135,8 +138,8 @@ while go:
             if sqdist < dist:
                 dist = sqdist
                 vec = (ydiff, xdiff)
-        dist = np.sqrt(dist) / speed_zombie
-        move(zombie, (vec[0] / dist, vec[1] / dist), speed_zombie)
+        dist = np.sqrt(dist) / zombie.speed
+        move(zombie, (vec[0] / dist, vec[1] / dist), zombie.speed)
     for zombie in decayed:
         zombies.remove(zombie)
         zombie.remove()
@@ -152,11 +155,12 @@ while go:
                 if sqdist < two_radius_sq:
                     infected.append(human)
                     break
-            mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / speed_human
-            move(human, (vec[0] / mag, vec[1] / mag), speed_human)
+            mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / human.speed
+            move(human, (vec[0] / mag, vec[1] / mag), human.speed)
         for human in infected:
             humans.remove(human)
             human.set_color(color_zombie)
+            human.speed = np.random.normal(speed_zombie, speed_spread)
             human.life = zombie_life
             zombies.append(human)
     plt.pause(.01)
