@@ -8,10 +8,12 @@ import matplotlib.pyplot as plt
 """
 parameters
 """
+visual = True
+runs = 1
 pop_human = 40
 pop_zombie = 12
 speed_human = .004
-speed_zombie = .0044
+speed_zombie = .0045
 speed_spread = .0005
 zombie_life = 200
 zombie_range = .35
@@ -92,79 +94,90 @@ def move(circle, vec, mag):
 main program code
 """
 
-# create the figure
-fig = plt.figure(figsize=(10, 8))
-fig.canvas.mpl_connect('key_press_event', on_key_press)
-
-# create the main axes
-ax = fig.add_axes((0., 0., .8, 1.))
-# todo: add some stats on the side
-
-# create square wall in the middle
-# todo: use more complex walls
-rect = plt.Rectangle((.4, .4), .2, .2, color=(.5, .5, .5))
-ax.add_artist(rect)
-
-# create the human and zombie circles
-humans = []
-zombies = []
-for i in range(pop_human):
-    c = plt.Circle(newPos(), radius, color=color_human)
-    c.speed = np.random.normal(speed_human, speed_spread)
-    humans.append(c)
-    ax.add_artist(c)
-for i in range(pop_zombie):
-    c = plt.Circle(newPos(), radius, color=color_zombie)
-    c.speed = np.random.normal(speed_zombie, speed_spread)
-    c.life = zombie_life
-    zombies.append(c)
-    ax.add_artist(c)
-
-plt.show()
+if visual:
+    # create the figure
+    fig = plt.figure(figsize=(10, 8))
+    fig.canvas.mpl_connect('key_press_event', on_key_press)
+    
+    # create the main axes
+    ax = fig.add_axes((0., 0., .8, 1.))
+    # todo: add some stats on the side
+    
+    # create square wall in the middle
+    # todo: use more complex walls
+    rect = plt.Rectangle((.4, .4), .2, .2, color=(.5, .5, .5))
+    ax.add_artist(rect)
+    
+    plt.show()
 
 # main simulation loop
-while go:
-    decayed = []
-    for zombie in zombies:
-        zombie.life -= 1
-        if zombie.life == 0:
-            decayed.append(zombie)
-        dist = zombie_range_sq
-        vec = (0., 0.)
-        for human in humans:
-            ydiff = wrapDiff(human.center[0] - zombie.center[0])
-            xdiff = wrapDiff(human.center[1] - zombie.center[1])
-            sqdist = ydiff ** 2 + xdiff ** 2
-            if sqdist < dist:
-                dist = sqdist
-                vec = (ydiff, xdiff)
-        dist = np.sqrt(dist) / zombie.speed
-        move(zombie, (vec[0] / dist, vec[1] / dist), zombie.speed)
-    for zombie in decayed:
-        zombies.remove(zombie)
-        zombie.remove()
-    if len(zombies) != 0:
-        infected = []
-        for human in humans:
+for i in range(runs):
+    
+    # create the human and zombie circles
+    humans = []
+    zombies = []
+    for i in range(pop_human):
+        c = plt.Circle(newPos(), radius, color=color_human)
+        c.speed = np.random.normal(speed_human, speed_spread)
+        humans.append(c)
+        if visual:
+            ax.add_artist(c)
+    for i in range(pop_zombie):
+        c = plt.Circle(newPos(), radius, color=color_zombie)
+        c.speed = np.random.normal(speed_zombie, speed_spread)
+        c.life = zombie_life
+        zombies.append(c)
+        if visual:
+            ax.add_artist(c)
+    
+    while go:
+        decayed = []
+        for zombie in zombies:
+            zombie.life -= 1
+            if zombie.life == 0:
+                decayed.append(zombie)
+            dist = zombie_range_sq
             vec = (0., 0.)
-            for zombie in zombies:
+            for human in humans:
                 ydiff = wrapDiff(human.center[0] - zombie.center[0])
                 xdiff = wrapDiff(human.center[1] - zombie.center[1])
                 sqdist = ydiff ** 2 + xdiff ** 2
-                vec = (vec[0] + ydiff / sqdist, vec[1] + xdiff / sqdist)
-                if sqdist < two_radius_sq:
-                    infected.append(human)
-                    break
-            mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / human.speed
-            move(human, (vec[0] / mag, vec[1] / mag), human.speed)
-        for human in infected:
-            humans.remove(human)
-            human.set_color(color_zombie)
-            human.speed = np.random.normal(speed_zombie, speed_spread)
-            human.life = zombie_life
-            zombies.append(human)
-    plt.pause(.01)
-    plt.draw()
-    if len(zombies) == 0:
+                if sqdist < dist:
+                    dist = sqdist
+                    vec = (ydiff, xdiff)
+            dist = np.sqrt(dist) / zombie.speed
+            move(zombie, (vec[0] / dist, vec[1] / dist), zombie.speed)
+        for zombie in decayed:
+            zombies.remove(zombie)
+            if visual:
+                zombie.remove()
+        if len(zombies) != 0:
+            infected = []
+            for human in humans:
+                vec = (0., 0.)
+                for zombie in zombies:
+                    ydiff = wrapDiff(human.center[0] - zombie.center[0])
+                    xdiff = wrapDiff(human.center[1] - zombie.center[1])
+                    sqdist = ydiff ** 2 + xdiff ** 2
+                    vec = (vec[0] + ydiff / sqdist, vec[1] + xdiff / sqdist)
+                    if sqdist < two_radius_sq:
+                        infected.append(human)
+                        break
+                mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / human.speed
+                move(human, (vec[0] / mag, vec[1] / mag), human.speed)
+            for human in infected:
+                humans.remove(human)
+                human.set_color(color_zombie)
+                human.speed = np.random.normal(speed_zombie, speed_spread)
+                human.life = zombie_life
+                zombies.append(human)
+        if visual:
+            plt.pause(.001)
+            plt.draw()
+        if len(humans) == 0 or len(zombies) == 0:
+            break
+    
+    print 'humans: ' + str(len(humans)) + ' zombies: ' + str(len(zombies))
+    if not go:
         break
 
