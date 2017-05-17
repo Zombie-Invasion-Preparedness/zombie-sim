@@ -1,5 +1,6 @@
 """
 zombie-sim.py
+CSS 458
 """
 
 import numpy as np
