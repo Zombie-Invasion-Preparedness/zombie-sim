@@ -16,19 +16,21 @@
 #-------------------- Module General Import and Declarations -------------------
 import numpy as np
 import matplotlib.pyplot as plt
+from humans import Human
+from zombie import Zombie
 
 #---------------------------- User defined variables ---------------------------
 visual = True
-runs = 1 # times to run the sim
-pop_human = 40 # initial population of humans
-pop_zombie = 12 # initial population of zombies
-water_stores = 6 # number of water locations
-speed_human = .0035 
-speed_zombie = .004 # speed of humans/zombies
-human_spread = .0007
-zombie_spread = .0005 # variance in speed of humans/zombies
-zombie_life = 200 # zombie lifetime
-zombie_range = .35 # zombie range of sight
+runs = 1                # times to run the sim
+pop_human = 40          # initial population of humans
+pop_zombie = 12         # initial population of zombies
+water_stores = 6        # number of water locations
+speed_human = .0035     # speed of humans
+speed_zombie = .004     # speed of zombies
+human_spread = .0007    # spread of human speed
+zombie_spread = .0005   # variance in speed of humans/zombies
+zombie_life = 200       # zombie lifetime
+zombie_range = .35      # zombie range of sight
 radius = .01
 
 #------------------------------ Constant variables -----------------------------
@@ -79,45 +81,46 @@ def collisionOffset(start, lead, target, mag):
         mag = -mag
     return (start + target * ratio + (1. - ratio) * mag) % 1.
 
-def move(circle, vec, mag):
-    y = (circle.center[0] + vec[0]) % 1.
-    x = (circle.center[1] + vec[1]) % 1.
+def move(agent, vec, mag):
+    y = (agent.plot.center[0] + vec[0]) % 1.
+    x = (agent.plot.center[1] + vec[1]) % 1.
     if not (y < bottom or y > top or x < left or x > right):
         ydiff = y - .5
         xdiff = x - .5
         if ydiff < xdiff:
             if ydiff < -xdiff:
-                x = collisionOffset(circle.center[1], bottom - circle.center[0], vec[1], mag)
+                x = collisionOffset(agent.plot.center[1], bottom - agent.plot.center[0], vec[1], mag)
                 y = bottom
             else:
-                y = collisionOffset(circle.center[0], circle.center[1] - right, vec[0], mag)
+                y = collisionOffset(agent.plot.center[0], agent.plot.center[1] - right, vec[0], mag)
                 x = right
         else:
             if ydiff < -xdiff:
-                y = collisionOffset(circle.center[0], left - circle.center[1], vec[0], mag)
+                y = collisionOffset(agent.plot.center[0], left - agent.plot.center[1], vec[0], mag)
                 x = left
             else:
-                x = collisionOffset(circle.center[1], circle.center[0] - top, vec[1], mag)
+                x = collisionOffset(agent.plot.center[1], agent.plot.center[0] - top, vec[1], mag)
                 y = top
-    circle.center = (y, x)
+    agent.plot.center = (y, x)
     
 def calculateSpeed(speed, spread):
     return np.random.normal(speed, spread)
 
 def initializePopulations():
     for i in range(pop_human):
-        c = plt.Circle(newPos(), radius, color=color_human)
-        c.speed = calculateSpeed(speed_human, human_spread)
-        humans.append(c)
+        speed = calculateSpeed(speed_human, human_spread)
+        human = Human(speed)
+        human.plot = plt.Circle(newPos(), radius, color=color_human)
+        humans.append(human)
         if visual:
-            ax.add_artist(c)
+            ax.add_artist(human.plot)
     for i in range(pop_zombie):
-        c = plt.Circle(newPos(), radius, color=color_zombie)
-        c.speed = calculateSpeed(speed_zombie, zombie_spread)
-        c.life = zombie_life
-        zombies.append(c)
+        speed = calculateSpeed(speed_zombie, zombie_spread)
+        zombie = Zombie(speed)
+        zombie.plot = plt.Circle(newPos(), radius, color=color_zombie)
+        zombies.append(zombie)
         if visual:
-            ax.add_artist(c)
+            ax.add_artist(zombie.plot)
     for i in range(water_stores):
         c = plt.Circle(newPos(), radius, color=color_water)
         water.append(c)
@@ -128,16 +131,16 @@ def moveZombies():
     global decayed
     decayed = []
     
-    humanCenters = np.array([human.center for human in humans])
+    humanCenters = np.array([human.plot.center for human in humans])
     for zombie in zombies:
-        zombie.life -= 1
-        if zombie.life == 0:
+        zombie = zombie.decay()
+        if zombie.time_till_death == 0:
             decayed.append(zombie)
         dist = zombie_range_sq
         vec = (0., 0.)
         
-        ydiff = wrapDiff(humanCenters[:,0] - zombie.center[0]) # Flipped?
-        xdiff = wrapDiff(humanCenters[:,1] - zombie.center[1])
+        ydiff = wrapDiff(humanCenters[:,0] - zombie.plot.center[0]) # Flipped?
+        xdiff = wrapDiff(humanCenters[:,1] - zombie.plot.center[1])
         sqdist = ydiff ** 2 + xdiff ** 2
         minDistIdx = np.argmin(sqdist)
         if sqdist[minDistIdx] < dist:
@@ -166,12 +169,12 @@ def moveAndInfectHumans():
     global infected
     infected = []
     
-    zombieCenters = np.array([zombie.center for zombie in zombies])
+    zombieCenters = np.array([zombie.plot.center for zombie in zombies])
     for human in humans:
         vec = (0., 0.)
         
-        ydiff = wrapDiff(human.center[0] - zombieCenters[:,0]) # Flipped?
-        xdiff = wrapDiff(human.center[1] - zombieCenters[:,1])
+        ydiff = wrapDiff(human.plot.center[0] - zombieCenters[:,0]) # Flipped?
+        xdiff = wrapDiff(human.plot.center[1] - zombieCenters[:,1])
         sqdist = ydiff ** 2 + xdiff ** 2
         minDistIdx = np.argmin(sqdist)
         if sqdist[minDistIdx] < two_radius_sq:
@@ -196,10 +199,10 @@ def moveAndInfectHumans():
 def zombifyInfected():
     for human in infected:
         humans.remove(human)
-        human.set_color(color_zombie)
-        human.speed = np.random.normal(speed_zombie, zombie_spread)
-        human.life = zombie_life
-        zombies.append(human)
+        speed = calculateSpeed(speed_zombie, zombie_spread)
+        zombie = Zombie(speed)
+        zombie.plot = plt.Circle(newPos(), radius, color=color_zombie)
+        zombies.append(zombie)
 
 #--------------------------------- Main Methods --------------------------------
 if __name__ == "__main__":
@@ -218,16 +221,15 @@ if __name__ == "__main__":
         ax.add_artist(rect)
         
         plt.show()
-    
     # main simulation loop
     for i in range(runs):
         
         # create the human and zombie circles
         initializePopulations()
-        
+
         while go:
             # Move every zombie to the human that is the closest
-            moveZombies()
+            moveZombies() 
                 
             # Clean up any decayed zombies from the simulation
             cleanupZombies()
@@ -251,7 +253,7 @@ if __name__ == "__main__":
             if len(humans) == 0 or len(zombies) == 0:
                 break
         
-        print 'humans: ' + str(len(humans)) + ' zombies: ' + str(len(zombies))
+        #print 'humans: ' + str(len(humans)) + ' zombies: ' + str(len(zombies))
         if not go:
             break
     
