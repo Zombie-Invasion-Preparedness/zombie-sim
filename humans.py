@@ -18,6 +18,7 @@ class Human:
 		self.calc_food()
 		self.calc_water()
 		self.calc_resource_usage()
+		return self
 
 	def calc_food(self):
 		self.food = random.uniform(min_food, max_food)
@@ -43,7 +44,7 @@ class Human:
 	def expire(self):
 		self.starve()
 		self.dehydrate()
-		return sel
+		return self
 
 	def eat(self, amount):
 		if(amount > max_consumption):
