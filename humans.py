@@ -1,6 +1,31 @@
+#==============================================================================
+#                            General Documentation
+#
+"""
+    This class represents the Human agents in the Zombie simulation. Human
+    agents are created by declaring an agent and passing in a speed level.
+    The newly created agent uses this speed level in conjunction with the
+    globally defined data members to set appropriate resource usage rates.
+    Food and water levels are calculated randomly for each Human object
+    based on global data members.
+"""
+
+#------------------------------------------------------------------------------
+#                           Additional Documentation
+#
+#   Authors:    Destiny Boyer, Taran Christensen, Scott Feurguson, Jeremy Luxom
+#   Date:       5/18/2017
+#   Class:      CSS 458 - Computer Simulation
+#   Assignment: Final Project, Zombie Simulation
+#==============================================================================
+
+#-------------------- Module General Import and Declarations ------------------
+
 import random
 
 class Human:
+
+    #---------------------------- Global Agent Variables ----------------------
 
     min_food = 0.3
     min_water = 0.3

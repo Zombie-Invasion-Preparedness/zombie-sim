@@ -1,6 +1,29 @@
+#==============================================================================
+#                            General Documentation
+#
+"""
+    This class represents the Zombie agents in the Zombie simulation. Zombie
+    agents are created by declaring an agent and passing in a speed level.
+    Each agent calculates a random number of hours until death based on a 
+    range specified in the Global Agent Variables section.
+"""
+
+#------------------------------------------------------------------------------
+#                           Additional Documentation
+#
+#   Authors:    Destiny Boyer, Taran Christensen, Scott Feurguson, Jeremy Luxom
+#   Date:       5/18/2017
+#   Class:      CSS 458 - Computer Simulation
+#   Assignment: Final Project, Zombie Simulation
+#==============================================================================
+
+#-------------------- Module General Import and Declarations ------------------
+
 import random
 
 class Zombie:
+
+    #---------------------------- Global Agent Variables ----------------------
 
     min_hours_till_death = 100.0
     max_hours_till_death = 200.0
