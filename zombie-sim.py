@@ -10,14 +10,16 @@ import matplotlib.pyplot as plt
 parameters
 """
 visual = True
-runs = 1
-pop_human = 40
-pop_zombie = 12
-speed_human = .004
-speed_zombie = .0045
-speed_spread = .0005
-zombie_life = 200
-zombie_range = .35
+runs = 1 # times to run the sim
+pop_human = 40 # initial population of humans
+pop_zombie = 12 # initial population of zombies
+water_stores = 6 # number of water locations
+speed_human = .0035 
+speed_zombie = .004 # speed of humans/zombies
+human_spread = .0007
+zombie_spread = .0005 # variance in speed of humans/zombies
+zombie_life = 200 # zombie lifetime
+zombie_range = .35 # zombie range of sight
 radius = .01
 
 """
@@ -25,6 +27,7 @@ constants
 """
 color_human = (0., .9, 0.)
 color_zombie = (.9, 0., 0.)
+color_water = (0., 0., .9)
 
 # used in the main loop
 two_radius_sq = (radius * 2) ** 2
@@ -90,6 +93,9 @@ def move(circle, vec, mag):
                 x = collisionOffset(circle.center[1], circle.center[0] - top, vec[1], mag)
                 y = top
     circle.center = (y, x)
+    
+def calculateSpeed(speed, spread):
+    return np.random.normal(speed, spread)
 
 """
 main program code
@@ -117,17 +123,23 @@ for i in range(runs):
     # create the human and zombie circles
     humans = []
     zombies = []
+    water = []
     for i in range(pop_human):
         c = plt.Circle(newPos(), radius, color=color_human)
-        c.speed = np.random.normal(speed_human, speed_spread)
+        c.speed = calculateSpeed(speed_human, human_spread)
         humans.append(c)
         if visual:
             ax.add_artist(c)
     for i in range(pop_zombie):
         c = plt.Circle(newPos(), radius, color=color_zombie)
-        c.speed = np.random.normal(speed_zombie, speed_spread)
+        c.speed = calculateSpeed(speed_zombie, zombie_spread)
         c.life = zombie_life
         zombies.append(c)
+        if visual:
+            ax.add_artist(c)
+    for i in range(water_stores):
+        c = plt.Circle(newPos(), radius, color=color_water)
+        water.append(c)
         if visual:
             ax.add_artist(c)
     
@@ -169,7 +181,7 @@ for i in range(runs):
             for human in infected:
                 humans.remove(human)
                 human.set_color(color_zombie)
-                human.speed = np.random.normal(speed_zombie, speed_spread)
+                human.speed = np.random.normal(speed_zombie, zombie_spread)
                 human.life = zombie_life
                 zombies.append(human)
         if visual:
