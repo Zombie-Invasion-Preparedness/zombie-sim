@@ -13,19 +13,19 @@ class Human:
         self.set_levels()
 
     def set_levels(self):
-        self.food = calc_food(min_food, max_food)
-        self.water = calc_water(min_water, max_water)
         self.calc_food()
         self.calc_water()
         self.calc_resource_usage()
         return self
 
     def calc_food(self):
-        self.food = random.uniform(min_food, max_food)
+        global min_food
+        global max_food
+        self.food = random.uniform(Human.min_food, Human.max_food)
         return self
 
     def calc_water(self):
-        self.water = random.uniform(min_water, max_water)
+        self.water = random.uniform(Human.min_water, Human.max_water)
         return self
 
     def calc_resource_usage(self):

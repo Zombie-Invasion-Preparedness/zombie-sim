@@ -18,7 +18,7 @@ class Zombie:
         return self
 
     def set_time_till_death(self):
-        self.time_till_death = random.randint(min_hours_till_death, max_hours_till_death)
+        self.time_till_death = random.randint(Zombie.min_hours_till_death, Zombie.max_hours_till_death)
         return self
 
     def decay(self):
