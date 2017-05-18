@@ -1,14 +1,23 @@
-"""
-zombie-sim.py
-CSS 458
+#===============================================================================
+#                            General Documentation
+#
+"""This is the long description of the zombie simulation
 """
 
+#-------------------------------------------------------------------------------
+#                           Additional Documentation
+#
+#   Authors:    Destiny Boyer, Taran Christensen, Scott Feurguson, Jeremy Luxom
+#   Date:       5/1/2017
+#   Class:      CSS 458 - Computer Simulation
+#   Assignment: Final Project, Zombie Simulation
+#===============================================================================
+
+#-------------------- Module General Import and Declarations -------------------
 import numpy as np
 import matplotlib.pyplot as plt
 
-"""
-parameters
-"""
+#---------------------------- User defined variables ---------------------------
 visual = True
 runs = 1 # times to run the sim
 pop_human = 40 # initial population of humans
@@ -22,9 +31,7 @@ zombie_life = 200 # zombie lifetime
 zombie_range = .35 # zombie range of sight
 radius = .01
 
-"""
-constants
-"""
+#------------------------------ Constant variables -----------------------------
 color_human = (0., .9, 0.)
 color_zombie = (.9, 0., 0.)
 color_water = (0., 0., .9)
@@ -39,13 +46,11 @@ right = .6 + radius
 top = .6 + radius
 bottom = .4 - radius
 
+#------------------------------- Global variables ------------------------------
 # global to stop the main loop if needed
 go = True
 
-"""
-helper methods
-"""
-
+#-------------------------------- Helper Methods -------------------------------
 # listener for key press events
 def on_key_press(event):
     global go
@@ -97,100 +102,98 @@ def move(circle, vec, mag):
 def calculateSpeed(speed, spread):
     return np.random.normal(speed, spread)
 
-"""
-main program code
-"""
-
-if visual:
-    # create the figure
-    fig = plt.figure(figsize=(10, 8))
-    fig.canvas.mpl_connect('key_press_event', on_key_press)
+#--------------------------------- Main Methods --------------------------------
+if __name__ == "__main__":
+    if visual:
+        # create the figure
+        fig = plt.figure(1, figsize=(10, 8))
+        fig.canvas.mpl_connect('key_press_event', on_key_press)
+        
+        # create the main axes
+        ax = fig.add_axes((0., 0., .8, 1.))
+        # todo: add some stats on the side
+        
+        # create square wall in the middle
+        # todo: use more complex walls
+        rect = plt.Rectangle((.4, .4), .2, .2, color=(.5, .5, .5))
+        ax.add_artist(rect)
+        
+        plt.show()
     
-    # create the main axes
-    ax = fig.add_axes((0., 0., .8, 1.))
-    # todo: add some stats on the side
-    
-    # create square wall in the middle
-    # todo: use more complex walls
-    rect = plt.Rectangle((.4, .4), .2, .2, color=(.5, .5, .5))
-    ax.add_artist(rect)
-    
-    plt.show()
-
-# main simulation loop
-for i in range(runs):
-    
-    # create the human and zombie circles
-    humans = []
-    zombies = []
-    water = []
-    for i in range(pop_human):
-        c = plt.Circle(newPos(), radius, color=color_human)
-        c.speed = calculateSpeed(speed_human, human_spread)
-        humans.append(c)
-        if visual:
-            ax.add_artist(c)
-    for i in range(pop_zombie):
-        c = plt.Circle(newPos(), radius, color=color_zombie)
-        c.speed = calculateSpeed(speed_zombie, zombie_spread)
-        c.life = zombie_life
-        zombies.append(c)
-        if visual:
-            ax.add_artist(c)
-    for i in range(water_stores):
-        c = plt.Circle(newPos(), radius, color=color_water)
-        water.append(c)
-        if visual:
-            ax.add_artist(c)
-    
-    while go:
-        decayed = []
-        for zombie in zombies:
-            zombie.life -= 1
-            if zombie.life == 0:
-                decayed.append(zombie)
-            dist = zombie_range_sq
-            vec = (0., 0.)
-            for human in humans:
-                ydiff = wrapDiff(human.center[0] - zombie.center[0])
-                xdiff = wrapDiff(human.center[1] - zombie.center[1])
-                sqdist = ydiff ** 2 + xdiff ** 2
-                if sqdist < dist:
-                    dist = sqdist
-                    vec = (ydiff, xdiff)
-            dist = np.sqrt(dist) / zombie.speed
-            move(zombie, (vec[0] / dist, vec[1] / dist), zombie.speed)
-        for zombie in decayed:
-            zombies.remove(zombie)
+    # main simulation loop
+    for i in range(runs):
+        
+        # create the human and zombie circles
+        humans = []
+        zombies = []
+        water = []
+        for i in range(pop_human):
+            c = plt.Circle(newPos(), radius, color=color_human)
+            c.speed = calculateSpeed(speed_human, human_spread)
+            humans.append(c)
             if visual:
-                zombie.remove()
-        if len(zombies) != 0:
-            infected = []
-            for human in humans:
+                ax.add_artist(c)
+        for i in range(pop_zombie):
+            c = plt.Circle(newPos(), radius, color=color_zombie)
+            c.speed = calculateSpeed(speed_zombie, zombie_spread)
+            c.life = zombie_life
+            zombies.append(c)
+            if visual:
+                ax.add_artist(c)
+        for i in range(water_stores):
+            c = plt.Circle(newPos(), radius, color=color_water)
+            water.append(c)
+            if visual:
+                ax.add_artist(c)
+        
+        while go:
+            decayed = []
+            for zombie in zombies:
+                zombie.life -= 1
+                if zombie.life == 0:
+                    decayed.append(zombie)
+                dist = zombie_range_sq
                 vec = (0., 0.)
-                for zombie in zombies:
+                for human in humans:
                     ydiff = wrapDiff(human.center[0] - zombie.center[0])
                     xdiff = wrapDiff(human.center[1] - zombie.center[1])
                     sqdist = ydiff ** 2 + xdiff ** 2
-                    vec = (vec[0] + ydiff / sqdist, vec[1] + xdiff / sqdist)
-                    if sqdist < two_radius_sq:
-                        infected.append(human)
-                        break
-                mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / human.speed
-                move(human, (vec[0] / mag, vec[1] / mag), human.speed)
-            for human in infected:
-                humans.remove(human)
-                human.set_color(color_zombie)
-                human.speed = np.random.normal(speed_zombie, zombie_spread)
-                human.life = zombie_life
-                zombies.append(human)
-        if visual:
-            plt.pause(.001)
-            plt.draw()
-        if len(humans) == 0 or len(zombies) == 0:
+                    if sqdist < dist:
+                        dist = sqdist
+                        vec = (ydiff, xdiff)
+                dist = np.sqrt(dist) / zombie.speed
+                move(zombie, (vec[0] / dist, vec[1] / dist), zombie.speed)
+            for zombie in decayed:
+                zombies.remove(zombie)
+                if visual:
+                    zombie.remove()
+            if len(zombies) != 0:
+                infected = []
+                for human in humans:
+                    vec = (0., 0.)
+                    for zombie in zombies:
+                        ydiff = wrapDiff(human.center[0] - zombie.center[0])
+                        xdiff = wrapDiff(human.center[1] - zombie.center[1])
+                        sqdist = ydiff ** 2 + xdiff ** 2
+                        vec = (vec[0] + ydiff / sqdist, vec[1] + xdiff / sqdist)
+                        if sqdist < two_radius_sq:
+                            infected.append(human)
+                            break
+                    mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / human.speed
+                    move(human, (vec[0] / mag, vec[1] / mag), human.speed)
+                for human in infected:
+                    humans.remove(human)
+                    human.set_color(color_zombie)
+                    human.speed = np.random.normal(speed_zombie, zombie_spread)
+                    human.life = zombie_life
+                    zombies.append(human)
+            if visual:
+                plt.pause(.001)
+                plt.draw()
+            if len(humans) == 0 or len(zombies) == 0:
+                break
+        
+        print 'humans: ' + str(len(humans)) + ' zombies: ' + str(len(zombies))
+        if not go:
             break
     
-    print 'humans: ' + str(len(humans)) + ' zombies: ' + str(len(zombies))
-    if not go:
-        break
-
