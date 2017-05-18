@@ -107,7 +107,7 @@ def move(circle, vec, mag):
 def calculateSpeed(speed, spread):
     return np.random.normal(speed, spread)
 
-def initilizePopulations():
+def initializePopulations():
     for i in range(pop_human):
         c = plt.Circle(newPos(), radius, color=color_human)
         c.speed = calculateSpeed(speed_human, human_spread)
@@ -198,7 +198,7 @@ if __name__ == "__main__":
     for i in range(runs):
         
         # create the human and zombie circles
-        initilizePopulations()
+        initializePopulations()
         
         while go:
             # Move every zombie to the human that is the closest
