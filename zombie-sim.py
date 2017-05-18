@@ -70,11 +70,8 @@ def newPos():
             return pos
 
 def wrapDiff(diff):
-    if diff > .5:
-        return -1. + diff
-    if diff < -.5:
-        return 1. + diff
-    return diff
+    diff = np.where(diff > 0.5, -1. + diff, diff)
+    return np.where(diff < -0.5, 1. + diff, diff)
 
 def collisionOffset(start, lead, target, mag):
     ratio = lead / mag
@@ -130,12 +127,24 @@ def initializePopulations():
 def moveZombies():
     global decayed
     decayed = []
+    
+    humanCenters = np.array([human.center for human in humans])
     for zombie in zombies:
         zombie.life -= 1
         if zombie.life == 0:
             decayed.append(zombie)
         dist = zombie_range_sq
         vec = (0., 0.)
+        
+        ydiff = wrapDiff(humanCenters[:,0] - zombie.center[0]) # Flipped?
+        xdiff = wrapDiff(humanCenters[:,1] - zombie.center[1])
+        sqdist = ydiff ** 2 + xdiff ** 2
+        minDistIdx = np.argmin(sqdist)
+        if sqdist[minDistIdx] < dist:
+            dist = sqdist[minDistIdx]
+            vec = (ydiff[minDistIdx], xdiff[minDistIdx])
+            
+        """ Old Non-Array Code
         for human in humans:
             ydiff = wrapDiff(human.center[0] - zombie.center[0])
             xdiff = wrapDiff(human.center[1] - zombie.center[1])
@@ -143,6 +152,7 @@ def moveZombies():
             if sqdist < dist:
                 dist = sqdist
                 vec = (ydiff, xdiff)
+        """
         dist = np.sqrt(dist) / zombie.speed
         move(zombie, (vec[0] / dist, vec[1] / dist), zombie.speed)
 
@@ -155,8 +165,22 @@ def cleanupZombies():
 def moveAndInfectHumans():
     global infected
     infected = []
+    
+    zombieCenters = np.array([zombie.center for zombie in zombies])
     for human in humans:
         vec = (0., 0.)
+        
+        ydiff = wrapDiff(human.center[0] - zombieCenters[:,0]) # Flipped?
+        xdiff = wrapDiff(human.center[1] - zombieCenters[:,1])
+        sqdist = ydiff ** 2 + xdiff ** 2
+        minDistIdx = np.argmin(sqdist)
+        if sqdist[minDistIdx] < two_radius_sq:
+            infected.append(human)
+            continue
+            
+        vec = (np.sum(ydiff/sqdist), np.sum(xdiff/sqdist))
+        
+        """ Old Non-Array Code
         for zombie in zombies:
             ydiff = wrapDiff(human.center[0] - zombie.center[0])
             xdiff = wrapDiff(human.center[1] - zombie.center[1])
@@ -165,6 +189,7 @@ def moveAndInfectHumans():
             if sqdist < two_radius_sq:
                 infected.append(human)
                 break
+        """
         mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / human.speed
         move(human, (vec[0] / mag, vec[1] / mag), human.speed)
 
