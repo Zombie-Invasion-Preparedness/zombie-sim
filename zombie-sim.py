@@ -201,7 +201,8 @@ def zombifyInfected():
         humans.remove(human)
         speed = calculateSpeed(speed_zombie, zombie_spread)
         zombie = Zombie(speed)
-        zombie.plot = plt.Circle(newPos(), radius, color=color_zombie)
+        zombie.plot = human.plot
+        zombie.plot.set_color(color_zombie)
         zombies.append(zombie)
 
 #--------------------------------- Main Methods --------------------------------
