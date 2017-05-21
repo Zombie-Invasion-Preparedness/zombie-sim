@@ -5,8 +5,6 @@ class Zombie:
     # starting time limit for zombies
     min_hours_till_death = 100.0
     max_hours_till_death = 200.0
-    
-    hours_from_food = 20
 
     def __init__(self, speedLvl):
         self.speed = speedLvl
@@ -17,8 +15,8 @@ class Zombie:
         self.set_time_till_death()
         return self
         
-    def eat(self):
-        self.time_till_death = self.time_till_death + Zombie.hours_from_food
+    def eat(self, energy):
+        self.time_till_death = self.time_till_death + energy
         return self
 
     # set the decay rate

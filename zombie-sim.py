@@ -16,6 +16,8 @@
 #-------------------- Module General Import and Declarations -------------------
 import numpy as np
 import matplotlib.pyplot as plt
+import humans
+import zombie
 
 #---------------------------- User defined variables ---------------------------
 visual = True
@@ -49,8 +51,13 @@ bottom = .4 - radius
 #------------------------------- Global variables ------------------------------
 # global to stop the main loop if needed
 go = True
-humans = []
-zombies = []
+humans_list = []
+zombies_list = []
+
+list_humans = [] # holds the human objects
+list_zombies = [] # holds the zombie objects
+
+
 water = []
 infected = []
 decayed = []
@@ -106,16 +113,22 @@ def calculateSpeed(speed, spread):
 
 def initializePopulations():
     for i in range(pop_human):
+        human = humans.Human(calculateSpeed(speed_human, human_spread)) # use human class
+        list_humans.append(human)
+        
         c = plt.Circle(newPos(), radius, color=color_human)
         c.speed = calculateSpeed(speed_human, human_spread)
-        humans.append(c)
+        humans_list.append(c)
         if visual:
             ax.add_artist(c)
     for i in range(pop_zombie):
+        zombies = zombie.Zombie(calculateSpeed(speed_zombie, zombie_spread)) # use zombie class
+        list_zombies.append(zombies)
+        
         c = plt.Circle(newPos(), radius, color=color_zombie)
         c.speed = calculateSpeed(speed_zombie, zombie_spread)
         c.life = zombie_life
-        zombies.append(c)
+        zombies_list.append(c)
         if visual:
             ax.add_artist(c)
     for i in range(water_stores):
@@ -128,8 +141,8 @@ def moveZombies():
     global decayed
     decayed = []
     
-    humanCenters = np.array([human.center for human in humans])
-    for zombie in zombies:
+    humanCenters = np.array([human.center for human in humans_list])
+    for zombie in zombies_list:
         zombie.life -= 1
         if zombie.life == 0:
             decayed.append(zombie)
@@ -158,7 +171,7 @@ def moveZombies():
 
 def cleanupZombies():
     for zombie in decayed:
-        zombies.remove(zombie)
+        zombies_list.remove(zombie)
         if visual:
             zombie.remove()
 
@@ -166,8 +179,8 @@ def moveAndInfectHumans():
     global infected
     infected = []
     
-    zombieCenters = np.array([zombie.center for zombie in zombies])
-    for human in humans:
+    zombieCenters = np.array([zombie.center for zombie in zombies_list])
+    for human in humans_list:
         vec = (0., 0.)
         
         ydiff = wrapDiff(human.center[0] - zombieCenters[:,0]) # Flipped?
@@ -195,11 +208,11 @@ def moveAndInfectHumans():
 
 def zombifyInfected():
     for human in infected:
-        humans.remove(human)
+        humans_list.remove(human)
         human.set_color(color_zombie)
         human.speed = np.random.normal(speed_zombie, zombie_spread)
         human.life = zombie_life
-        zombies.append(human)
+        zombies_list.append(human)
 
 #--------------------------------- Main Methods --------------------------------
 if __name__ == "__main__":
@@ -232,7 +245,7 @@ if __name__ == "__main__":
             # Clean up any decayed zombies from the simulation
             cleanupZombies()
             
-            if len(zombies) != 0:
+            if len(zombies_list) != 0:
                 # For every human in the simulation, run away from any zombies 
                 #  nearby, and if there is a zombie near enough then this human 
                 #  is infected
@@ -248,10 +261,10 @@ if __name__ == "__main__":
                 plt.draw()
                 
             # Finish when either humans or zombies "win"
-            if len(humans) == 0 or len(zombies) == 0:
+            if len(humans_list) == 0 or len(zombies_list) == 0:
                 break
         
-        print 'humans: ' + str(len(humans)) + ' zombies: ' + str(len(zombies))
+        print 'humans: ' + str(len(humans_list)) + ' zombies: ' + str(len(zombies_list))
         if not go:
             break
     
