@@ -61,7 +61,7 @@ decayed = []
 #-------------------------------- Helper Methods -------------------------------
 # listener for key press events
 def on_key_press(event):
-    """Docstring
+    """Listen for and handle the space bar being pressed
     
     Method Arguments:
     * event: Key pressed event object
@@ -117,15 +117,15 @@ def collisionOffset(start, lead, target, mag):
     return (start + target * ratio + (1. - ratio) * mag) % 1.
 
 def move(agent, vec, mag):
-    """Docstring
+    """Function to handle the movement of agents around the canvas
     
     Method Arguments:
-    * agent: 
+    * agent: The zombie/human agent that will be updated and moved
     * vec:
     * mag:
     
     Output:
-    * Output vals
+    * An updated x, y location for the agent based on set conditions
     """
     y = (agent.plot.center[0] + vec[0]) % 1.
     x = (agent.plot.center[1] + vec[1]) % 1.
@@ -149,22 +149,27 @@ def move(agent, vec, mag):
     agent.plot.center = (y, x)
     
 def calculateSpeed(speed, spread):
-    """Docstring
+    """Calculate the speed of the agent using a normal 
+    distribution between two values
     
     Method Arguments:
-    * speed:
-    * spread: 
+    * speed: The speed of the agent. This value is predefined
+    and is different for the zombie and human agents
+    * spread: The possible spread for the values of speed. This 
+    value is predefined and is different for the zombie and human agents.
+    
     
     Output:
-    * Output vals
+    * An integer value corresponding to the speed of the agent
     """
     return np.random.normal(speed, spread)
 
 def initializePopulations():
-    """Docstring
+    """A function that initializes all agents
     
     Output:
-    * Output vals
+    * Each class will have a number of agents from a predefined 
+    variable, and will be added into the simulation
     """
     for i in range(pop_human):
         speed = calculateSpeed(speed_human, human_spread)
@@ -187,22 +192,25 @@ def initializePopulations():
             ax.add_artist(c)
 
 def moveZombies():
-    """Docstring
+    """Function to handle the movement of zombie agents around
+    the canvas and to properly decay the zombie agents. Zombie agents attempt to 
+    reach the closest human in their range of sight
     
     Output:
-    * Output vals
+    * Calls the move() function for the zombie agent
     """
     global decayed
     decayed = []
     
     humanCenters = np.array([human.plot.center for human in list_humans])
     for zombie in list_zombies:
-        zombie = zombie.decay()
+        zombie = zombie.decay() # decay
         if zombie.time_till_death == 0:
             decayed.append(zombie)
-        dist = zombie_range_sq
+        dist = zombie_range_sq # zombie range of sight ** 2
         vec = (0., 0.)
         
+        # distances between the humans and zombie agents
         ydiff = wrapDiff(humanCenters[:,0] - zombie.plot.center[0]) # Flipped?
         xdiff = wrapDiff(humanCenters[:,1] - zombie.plot.center[1])
         sqdist = ydiff ** 2 + xdiff ** 2
@@ -224,10 +232,12 @@ def moveZombies():
         move(zombie, (vec[0] / dist, vec[1] / dist), zombie.speed)
 
 def cleanupZombies():
-    """Docstring
+    """Helper function to handle the zombie agents that have reached
+    their time limit and need to be removed
     
     Output:
-    * Output vals
+    * an updated list of zombies, and the removal of the decayed zombie agents
+    from the canvas
     """
     for zombie in decayed:
         list_zombies.remove(zombie)
@@ -235,10 +245,11 @@ def cleanupZombies():
             zombie.remove()
 
 def moveAndInfectHumans():
-    """Docstring
+    """Function to move the human agents away from the zombie agents. If a 
+    zombie agent touches a human then that human becomes infected   
     
     Output:
-    * Output vals
+    * Calls the move() function for the human agents.
     """
     global infected
     infected = []
@@ -251,8 +262,8 @@ def moveAndInfectHumans():
         xdiff = wrapDiff(human.plot.center[1] - zombieCenters[:,1])
         sqdist = ydiff ** 2 + xdiff ** 2
         minDistIdx = np.argmin(sqdist)
-        if sqdist[minDistIdx] < two_radius_sq:
-            infected.append(human)
+        if sqdist[minDistIdx] < two_radius_sq: # zombie is touching a human
+            infected.append(human) # add to infected, zombifyInfected() will handle
             continue
             
         vec = (np.sum(ydiff/sqdist), np.sum(xdiff/sqdist))
@@ -271,10 +282,11 @@ def moveAndInfectHumans():
         move(human, (vec[0] / mag, vec[1] / mag), human.speed)
 
 def zombifyInfected():
-    """Docstring
+    """A method to handle the human agents that have been
+    infected and will turn them into zombie agents
     
     Output:
-    * Output vals
+    * An updated zombie list that now includes previously infected humans
     """
     for human in infected:
         list_humans.remove(human)
