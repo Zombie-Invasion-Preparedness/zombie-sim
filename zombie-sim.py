@@ -61,28 +61,72 @@ decayed = []
 #-------------------------------- Helper Methods -------------------------------
 # listener for key press events
 def on_key_press(event):
+    """Docstring
+    
+    Method Arguments:
+    * event: Key pressed event object
+    
+    Output:
+    * This method sets 'go' to false, enabling the ability to pause the active
+    simulation. 'Go' is set to false when the event key corresponds to space.
+    """
     global go
     if event.key == ' ': # if space is pressed, stop the sim
         go = False
 
-# generate a new random circle starting position
 def newPos():
+    """ Genereate a new random starting position for an agent
+    
+    Output:
+    * A two element array consisting of two random floats that are inside the 
+    bounaries of the play area defined by 'left', 'right', 'bottom', and 'top'. 
+    """
     while True:
         pos = np.random.random(2)
         if pos[0] < bottom or pos[0] > top or pos[1] < left or pos[1] > right:
             return pos
 
 def wrapDiff(diff):
+    """ Function to wrap the difference between two positions
+    
+    Method Arguments:
+    * diff: Computed difference of distance between two agents 
+    
+    Output:
+    * An integer corresponding to the difference between two agents, properly
+    wrapped. Values that are properly wrapped have been put between -0.5 and 0.5
+    """
     diff = np.where(diff > 0.5, -1. + diff, diff)
     return np.where(diff < -0.5, 1. + diff, diff)
 
 def collisionOffset(start, lead, target, mag):
+    """Docstring
+    
+    Method Arguments:
+    * start: 
+    * lead:
+    * target:
+    * mag:
+    
+    Output:
+    * Output vals
+    """
     ratio = lead / mag
     if target < 0:
         mag = -mag
     return (start + target * ratio + (1. - ratio) * mag) % 1.
 
 def move(agent, vec, mag):
+    """Docstring
+    
+    Method Arguments:
+    * agent: 
+    * vec:
+    * mag:
+    
+    Output:
+    * Output vals
+    """
     y = (agent.plot.center[0] + vec[0]) % 1.
     x = (agent.plot.center[1] + vec[1]) % 1.
     if not (y < bottom or y > top or x < left or x > right):
@@ -105,9 +149,23 @@ def move(agent, vec, mag):
     agent.plot.center = (y, x)
     
 def calculateSpeed(speed, spread):
+    """Docstring
+    
+    Method Arguments:
+    * speed:
+    * spread: 
+    
+    Output:
+    * Output vals
+    """
     return np.random.normal(speed, spread)
 
 def initializePopulations():
+    """Docstring
+    
+    Output:
+    * Output vals
+    """
     for i in range(pop_human):
         speed = calculateSpeed(speed_human, human_spread)
         human = Human(speed)
@@ -129,6 +187,11 @@ def initializePopulations():
             ax.add_artist(c)
 
 def moveZombies():
+    """Docstring
+    
+    Output:
+    * Output vals
+    """
     global decayed
     decayed = []
     
@@ -161,12 +224,22 @@ def moveZombies():
         move(zombie, (vec[0] / dist, vec[1] / dist), zombie.speed)
 
 def cleanupZombies():
+    """Docstring
+    
+    Output:
+    * Output vals
+    """
     for zombie in decayed:
         list_zombies.remove(zombie)
         if visual:
             zombie.remove()
 
 def moveAndInfectHumans():
+    """Docstring
+    
+    Output:
+    * Output vals
+    """
     global infected
     infected = []
     
@@ -198,6 +271,11 @@ def moveAndInfectHumans():
         move(human, (vec[0] / mag, vec[1] / mag), human.speed)
 
 def zombifyInfected():
+    """Docstring
+    
+    Output:
+    * Output vals
+    """
     for human in infected:
         list_humans.remove(human)
         speed = calculateSpeed(speed_zombie, zombie_spread)
