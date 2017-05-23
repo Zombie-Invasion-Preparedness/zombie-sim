@@ -29,9 +29,6 @@ class Zombie:
     max_hours_till_death = 200.0
 
     def __init__(self, speedLvl, color, x, y):
-        # Call the parent class (Sprite) constructor
-        super(Zombie, self).__init__()
-
         self.color = color
         self.x = x
         self.y = y

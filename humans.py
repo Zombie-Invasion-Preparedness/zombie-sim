@@ -36,9 +36,6 @@ class Human:
     max_consumption = 0.01 # max can eat/drink at one tick
 
     def __init__(self, speedLvl, color, x, y):
-        # Call the parent class (Sprite) constructor
-        super(Human, self).__init__()
-
         self.color = color
         self.x = x
         self.y = y

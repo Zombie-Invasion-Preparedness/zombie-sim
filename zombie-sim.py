@@ -164,13 +164,13 @@ def initializePopulations():
     for i in range(pop_human):
         speed = calculateSpeed(speed_human, human_spread)
         y, x = newPos()
-        human = Human(speed, GREEN, 10, 10, x, y)
+        human = Human(speed, GREEN, x, y)
         list_humans.append(human)
 
     for i in range(pop_zombie):
         speed = calculateSpeed(speed_zombie, zombie_spread)
         y, x = newPos()
-        zombie = Zombie(speed, RED, 10, 10, x, y)
+        zombie = Zombie(speed, RED, x, y)
         list_zombies.append(zombie)
 
 def zombifyInfected():
@@ -183,7 +183,7 @@ def zombifyInfected():
     for human in infected:
         list_humans.remove(human)
         human.speed = np.random.normal(speed_zombie, zombie_spread) # new speed
-        zombie = Zombie(human.speed, RED, 10, 10, human.x, human.y) # make a new zombie agent at the human's location
+        zombie = Zombie(human.speed, RED, human.x, human.y) # make a new zombie agent at the human's location
         zombie.set_time_till_death() # set the new time of death
         list_zombies.append(zombie)
 
