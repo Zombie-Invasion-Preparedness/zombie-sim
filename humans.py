@@ -116,3 +116,14 @@ class Human(pygame.sprite.Sprite):
             self.water = self.water + amount
         return self
 
+    # not yet polished function for moving human agents. Seeks food if food is
+    # below hungry and food is below water. Otherwise if water is below food and
+    # the agent is hungry, the agent will seek water. Else the agent seeks food.
+    # However, we need to account for zombies being near as well.
+    def move(self):
+        if(self.food < hungry and self.food < self.water):
+            seek_food()
+        elif(self.water < thirsty and self.water < self.food):
+            seek_water()
+        else:
+            seek_shelter()
