@@ -56,8 +56,10 @@ bottom = 500. - radius
 #------------------------------- Global variables ------------------------------
 # global to stop the main loop if needed
 go = True
-list_humans = [] # holds the human objects
-list_zombies = [] # holds the zombie objects
+list_humans = []	# holds the human objects
+list_zombies = []	# holds the zombie objects
+list_water = []		# holds water objects
+list_food = []		# holds food objects
 
 water = []
 infected = []
@@ -83,7 +85,6 @@ def on_key_press(event):
     global go
     if event.key == ' ':  # if space is pressed, stop the sim
         go = False
-
 
 def newPos():
     """ Genereate a new random starting position for an agent
@@ -180,7 +181,6 @@ def calculateSpeed(speed, spread):
     """
     return np.random.normal(speed, spread)
 
-
 def initializePopulations():
     """A function that initializes all agents
 
@@ -205,7 +205,6 @@ def initializePopulations():
         zombie.rect.y = y
         list_zombies.append(zombie)
         all_sprites_list.add(zombie)
-
 
 def zombifyInfected():
     """A method to handle the human agents that have been
@@ -277,7 +276,6 @@ def moveZombies():
         dist = np.sqrt(dist) / zombie.speed
         move(zombie, (vec[0] / dist, vec[1] / dist), zombie.speed)
 
-
 def moveAndInfectHumans():
     """Function to move the human agents away from the zombie agents. If a 
     zombie agent touches a human then that human becomes infected   
@@ -304,8 +302,6 @@ def moveAndInfectHumans():
 
         mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / human.speed
         move(human, (vec[0] / mag, vec[1] / mag), human.speed)
-
-
 
 #--------------------------------- Main Methods --------------------------------
 if __name__ == "__main__":
