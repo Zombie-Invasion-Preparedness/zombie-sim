@@ -31,7 +31,7 @@ class Zombie(pygame.sprite.Sprite):
 
     def __init__(self, speedLvl, color, width, height, x, y):
         # Call the parent class (Sprite) constructor
-        super().__init__()
+        super(Zombie, self).__init__()
 
         # Create an image of the block, and fill it with a color.
         # This could also be an image loaded from the disk.
