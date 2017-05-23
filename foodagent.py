@@ -2,11 +2,11 @@
 #                            General Documentation
 #
 """
-    This class represents the Water agents in the Zombie simulation. Each
-    water agent starts out with available resources of 3.0. Water agents
+    This class represents the Food agents in the Zombie simulation. Each
+    food agent starts out with available resources of 3.0. Food agents
     can be drained of resources via the drain() method which will return
     the amount that has been drained. max_level if that amount is available,
-    or the current waterLevel if waterLevel < max_level. This amount will then
+    or the current foodLevel if foodLevel < max_level. This amount will then
     be consumed by the human agent.
 """
 
@@ -19,20 +19,20 @@
 #   Assignment: Final Project, Zombie Simulation
 #==============================================================================
 
-class Water:
+class Food:
 
     def __init__(self):
-        self.waterLevel = 3.0
+        self.foodLevel = 3.0
 
-    #drains resources from a water agent. Each call of the function will
-    #result in a drain of max_level in water resources if that amount is
-    #available. Otherwise the rest of the water resource will be drained.
-    #retVal returned is equal to the amount of water drained.
+    #drains resources from a food agent. Each call of the function will
+    #result in a drain of max_level in food resources if that amount is
+    #available. Otherwise the rest of the food resource will be drained.
+    #retVal returned is equal to the amount of food drained.
     def drain(self, max_level):
-        retVal = 0.01
-        if(self.waterLevel < max_level):
-            self.waterLevel = self.waterLevel - max_level
+        retVal = max_level
+        if(self.foodLevel < max_level):
+            self.foodLevel = self.foodLevel - max_level
         else:
-            retVal = self.waterLevel
-            self.waterLevel = 0.0
+            retVal = self.foodLevel
+            self.foodLevel = 0.0
         return retVal
