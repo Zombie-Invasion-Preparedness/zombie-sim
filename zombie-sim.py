@@ -15,7 +15,6 @@
 
 #-------------------- Module General Import and Declarations -------------------
 import numpy as np
-import matplotlib.pyplot as plt
 from humans import Human
 from zombie import Zombie
 import pygame
@@ -23,7 +22,7 @@ import pygame
 #---------------------------- User defined variables ---------------------------
 visual = True
 runs = 1                # times to run the sim
-pop_human = 40          # initial population of humans
+pop_human = 100         # initial population of humans
 pop_zombie = 12         # initial population of zombies
 water_stores = 6        # number of water locations
 speed_human = 1.75      # speed of humans
@@ -44,11 +43,15 @@ RED = (255, 0, 0)
 two_radius_sq = (radius * 2) ** 2
 zombie_range_sq = zombie_range ** 2
 
+# screen dimensions
+WIDTH = 1024
+HEIGHT = 500
+
 # edges of the square, with radius offset
 left = 0. - radius
-right = 500. + radius
+right = WIDTH + radius
 top = 0.0 + radius
-bottom = 500. - radius
+bottom = HEIGHT - radius
 
 #------------------------------- Global variables ------------------------------
 list_humans = []	# holds the human objects
@@ -70,7 +73,7 @@ def newPos():
     bounaries of the play area defined by 'left', 'right', 'bottom', and 'top'. 
     """
     while True:
-        pos = np.random.random(2) * 500
+        pos = np.random.random(2) * (HEIGHT, WIDTH)
         if pos[0] < bottom or pos[0] > top or pos[1] < left or pos[1] > right:
             return pos
 
@@ -115,11 +118,11 @@ def move(circle, vec, mag):
     Output:
     * An updated x, y location for the agent based on set conditions
     """
-    y = (circle.y + vec[0]) % 500.
-    x = (circle.x + vec[1]) % 500.
+    y = (circle.y + vec[0]) % HEIGHT
+    x = (circle.x + vec[1]) % WIDTH
     if not (y < bottom or y > top or x < left or x > right):
-        ydiff = y - 250.
-        xdiff = x - 250.
+        ydiff = y - HEIGHT/2.
+        xdiff = x - WIDTH/2.
         if ydiff < xdiff:
             if ydiff < -xdiff:
                 x = collisionOffset(circle.x, bottom - circle.y , vec[1], mag)
@@ -265,8 +268,8 @@ if __name__ == "__main__":
         # Initialize pygame
         pygame.init()
         # Set the height and width of the screen
-        screen_width = 500
-        screen_height = 500
+        screen_width = WIDTH
+        screen_height = HEIGHT
         screen = pygame.display.set_mode((screen_width, screen_height))
 
         # Used to manage how fast the screen updates
