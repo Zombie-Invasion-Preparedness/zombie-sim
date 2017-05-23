@@ -45,7 +45,7 @@ zombie_range_sq = zombie_range ** 2
 
 # screen dimensions
 WIDTH = 1024
-HEIGHT = 500
+HEIGHT = 512
 
 # edges of the square, with radius offset
 left = 0. - radius
@@ -77,7 +77,7 @@ def newPos():
         if pos[0] < bottom or pos[0] > top or pos[1] < left or pos[1] > right:
             return pos
 
-def wrapDiff(diff):
+def wrapDiffX(diff):
     """ Function to wrap the difference between two positions
 
     Method Arguments:
@@ -87,8 +87,21 @@ def wrapDiff(diff):
     * An integer corresponding to the difference between two agents, properly
     wrapped. Values that are properly wrapped have been put between -0.5 and 0.5
     """
-    diff = np.where(diff > 250., -500. + diff, diff)
-    return np.where(diff < -250., 500. + diff, diff)
+    diff = np.where(diff > WIDTH/2, -WIDTH + diff, diff)
+    return np.where(diff < -WIDTH/2., WIDTH + diff, diff)
+
+def wrapDiffY(diff):
+    """ Function to wrap the difference between two positions
+
+    Method Arguments:
+    * diff: Computed difference of distance between two agents 
+
+    Output:
+    * An integer corresponding to the difference between two agents, properly
+    wrapped. Values that are properly wrapped have been put between -0.5 and 0.5
+    """
+    diff = np.where(diff > HEIGHT/2, -HEIGHT + diff, diff)
+    return np.where(diff < -HEIGHT/2, HEIGHT + diff, diff)
 
 def collisionOffset(start, lead, target, mag):
     """Docstring
@@ -223,8 +236,8 @@ def moveZombies():
         vec = (0., 0.)
 
         # distances between the humans and zombie agents
-        ydiff = wrapDiff(humanCenters[:, 0] - zombie.y)  # Flipped?
-        xdiff = wrapDiff(humanCenters[:, 1] - zombie.x)
+        ydiff = wrapDiffY(humanCenters[:, 0] - zombie.y)  # Flipped?
+        xdiff = wrapDiffX(humanCenters[:, 1] - zombie.x)
         sqdist = ydiff ** 2 + xdiff ** 2
         minDistIdx = np.argmin(sqdist)
         if sqdist[minDistIdx] < dist:
@@ -248,8 +261,8 @@ def moveAndInfectHumans():
     for human in list_humans:
         vec = (0., 0.)
 
-        ydiff = wrapDiff(human.y - zombieCenters[:, 0])  # Flipped?
-        xdiff = wrapDiff(human.x - zombieCenters[:, 1])
+        ydiff = wrapDiffY(human.y - zombieCenters[:, 0])  # Flipped?
+        xdiff = wrapDiffX(human.x - zombieCenters[:, 1])
         sqdist = ydiff ** 2 + xdiff ** 2
         minDistIdx = np.argmin(sqdist)
         if sqdist[minDistIdx] < two_radius_sq:
