@@ -115,3 +115,4 @@ class Human(pygame.sprite.Sprite):
         else:
             self.water = self.water + amount
         return self
+
