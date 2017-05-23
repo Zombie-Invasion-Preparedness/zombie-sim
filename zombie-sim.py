@@ -35,9 +35,6 @@ zombie_range = 175      # zombie range of sight
 radius = 5
 
 #------------------------------ Constant variables -----------------------------
-color_human = (0., .9, 0.)
-color_zombie = (.9, 0., 0.)
-color_water = (0., 0., .9)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
@@ -138,7 +135,6 @@ def move(circle, vec, mag):
                 x = collisionOffset(circle.x, circle.y  - top, vec[1], mag)
                 y = top
 
-    # just to keep track for the pos() method
     circle.y = y
     circle.x = x
 
@@ -188,8 +184,8 @@ def zombifyInfected():
         list_humans.remove(human)
         human.speed = np.random.normal(speed_zombie, zombie_spread) # new speed
         zombie = Zombie(human.speed, RED, 10, 10, human.x, human.y) # make a new zombie agent at the human's location
+        zombie.set_time_till_death() # set the new time of death
         list_zombies.append(zombie)
-        list_zombies[-1].set_time_till_death() # set the new time of death
 
 def cleanupZombies():
     """Helper function to handle the zombie agents that have reached
@@ -217,7 +213,7 @@ def moveZombies():
 
     humanCenters = np.array([human.pos() for human in list_humans])
     for zombie in list_zombies:
-        zombie = zombie.decay()  # decay
+        zombie.decay()  # decay
         if zombie.time_till_death < 0: # cant use == 0
             decayed.append(zombie)
         dist = zombie_range_sq  # zombie range of sight ** 2
@@ -271,7 +267,7 @@ if __name__ == "__main__":
         # Set the height and width of the screen
         screen_width = 500
         screen_height = 500
-        screen = pygame.display.set_mode([screen_width, screen_height])
+        screen = pygame.display.set_mode((screen_width, screen_height))
 
         # Used to manage how fast the screen updates
         clock = pygame.time.Clock()
@@ -284,13 +280,6 @@ if __name__ == "__main__":
 
         # handle the user clicking the x
         while not done:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    done = True
-
-            # Clear the screen
-            screen.fill(WHITE)
-
             # Move every zombie to the human that is the closest
             moveZombies()
 
@@ -306,20 +295,29 @@ if __name__ == "__main__":
                 # Turn infected humans into zombies
                 zombifyInfected()
 
-            # Draw all the spites
-            for sprite in list_humans + list_zombies:
-                pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), radius)
+            if visual:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        done = True
+                # Clear the screen
+                screen.fill(WHITE)
 
-            # fps
-            clock.tick(30)
-
-            # Go ahead and update the screen with what we've drawn.
-            pygame.display.update()
+                # Draw all the spites
+                for sprite in list_humans + list_zombies:
+                    pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), radius)
+    
+                # fps
+                clock.tick(30)
+    
+                # Go ahead and update the screen with what we've drawn.
+                pygame.display.update()
 
             # Finish when either humans or zombies "win"
             if len(list_humans) == 0 or len(list_zombies) == 0:
                 break
-        pygame.quit()
+        
+        if visual:
+            pygame.quit()
 
         print('humans: ' + str(len(list_humans)) + ' zombies: ' + str(len(list_zombies)))
         if done:
