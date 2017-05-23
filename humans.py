@@ -22,12 +22,11 @@
 #-------------------- Module General Import and Declarations ------------------
 
 import random
-import pygame
 
-class Human(pygame.sprite.Sprite):
+class Human:
 
     # ---------------------------- Global Agent Variables ----------------------
-
+    
     min_food = 0.3 # minimum starting food
     min_water = 0.3 # minimum starting water
     max_food = 1.0 # maximum starting food
@@ -36,20 +35,11 @@ class Human(pygame.sprite.Sprite):
     hungry = .7 # look for food
     max_consumption = 0.01 # max can eat/drink at one tick
 
-    def __init__(self, speedLvl, color, width, height, x, y):
+    def __init__(self, speedLvl, color, x, y):
         # Call the parent class (Sprite) constructor
         super(Human, self).__init__()
 
-        # Create an image of the block, and fill it with a color.
-        # This could also be an image loaded from the disk.
-        self.image = pygame.Surface([width, height])
-        self.image.fill(color)
-
-        # Fetch the rectangle object that has the dimensions of the image
-        # Update the position of this object by setting the values
-        # of rect.x and rect.y
-        self.rect = self.image.get_rect()
-
+        self.color = color
         self.x = x
         self.y = y
 
@@ -68,8 +58,6 @@ class Human(pygame.sprite.Sprite):
     
     # determine how much food to start with
     def calc_food(self):
-        global min_food
-        global max_food
         self.food = random.uniform(Human.min_food, Human.max_food)
         return self
 

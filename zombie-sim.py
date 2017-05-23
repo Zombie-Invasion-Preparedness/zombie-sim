@@ -54,8 +54,6 @@ top = 0.0 + radius
 bottom = 500. - radius
 
 #------------------------------- Global variables ------------------------------
-# global to stop the main loop if needed
-go = True
 list_humans = []	# holds the human objects
 list_zombies = []	# holds the zombie objects
 list_water = []		# holds water objects
@@ -65,26 +63,7 @@ water = []
 infected = []
 decayed = []
 
-# This is a list of 'sprites.' Each block in the program is
-# added to this list. The list is managed by a class called 'Group.'
-all_sprites_list = pygame.sprite.Group()
-
 #-------------------------------- Helper Methods -------------------------------
-
-# listener for key press events
-def on_key_press(event):
-    """Listen for and handle the space bar being pressed
-
-    Method Arguments:
-    * event: Key pressed event object
-
-    Output:
-    * This method sets 'go' to false, enabling the ability to pause the active
-    simulation. 'Go' is set to false when the event key corresponds to space.
-    """
-    global go
-    if event.key == ' ':  # if space is pressed, stop the sim
-        go = False
 
 def newPos():
     """ Genereate a new random starting position for an agent
@@ -158,8 +137,6 @@ def move(circle, vec, mag):
             else:
                 x = collisionOffset(circle.x, circle.y  - top, vec[1], mag)
                 y = top
-    circle.rect.y = y
-    circle.rect.x = x
 
     # just to keep track for the pos() method
     circle.y = y
@@ -192,19 +169,13 @@ def initializePopulations():
         speed = calculateSpeed(speed_human, human_spread)
         y, x = newPos()
         human = Human(speed, GREEN, 10, 10, x, y)
-        human.rect.x = x
-        human.rect.y = y
         list_humans.append(human)
-        all_sprites_list.add(human)
 
     for i in range(pop_zombie):
         speed = calculateSpeed(speed_zombie, zombie_spread)
         y, x = newPos()
         zombie = Zombie(speed, RED, 10, 10, x, y)
-        zombie.rect.x = x
-        zombie.rect.y = y
         list_zombies.append(zombie)
-        all_sprites_list.add(zombie)
 
 def zombifyInfected():
     """A method to handle the human agents that have been
@@ -215,7 +186,6 @@ def zombifyInfected():
     """
     for human in infected:
         list_humans.remove(human)
-        human.image.fill(RED) # change color
         human.speed = np.random.normal(speed_zombie, zombie_spread) # new speed
         zombie = Zombie(human.speed, RED, 10, 10, human.x, human.y) # make a new zombie agent at the human's location
         list_zombies.append(zombie)
@@ -233,17 +203,6 @@ def cleanupZombies():
 
     for zombie in decayed:
         list_zombies.remove(zombie)
-
-    # this next part is a bug fix
-    # sprite group has a built in remove() but it didn't work with zombie
-    all_sprites_list.empty()
-
-    # repopulate with agents
-    for zombie in list_zombies:
-        all_sprites_list.add(zombie)
-
-    for human in list_humans:
-        all_sprites_list.add(human)
 
 def moveZombies():
     """Function to handle the movement of zombie agents around
@@ -348,23 +307,22 @@ if __name__ == "__main__":
                 zombifyInfected()
 
             # Draw all the spites
-            all_sprites_list.draw(screen)
+            for sprite in list_humans + list_zombies:
+                pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), radius)
 
             # fps
             clock.tick(30)
 
             # Go ahead and update the screen with what we've drawn.
-            pygame.display.flip()
-
+            pygame.display.update()
 
             # Finish when either humans or zombies "win"
             if len(list_humans) == 0 or len(list_zombies) == 0:
                 break
         pygame.quit()
 
-        #print('humans: ' + str(len(humans_list)) + ' zombies: ' + str(len(zombies_list)))
-        if not go:
+        print('humans: ' + str(len(list_humans)) + ' zombies: ' + str(len(list_zombies)))
+        if done:
             break
-
 
 

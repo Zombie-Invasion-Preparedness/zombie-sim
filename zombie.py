@@ -19,9 +19,8 @@
 
 #-------------------- Module General Import and Declarations ------------------
 import random
-import pygame
 
-class Zombie(pygame.sprite.Sprite):
+class Zombie:
 
     # ---------------------------- Global Agent Variables ----------------------
 
@@ -29,19 +28,11 @@ class Zombie(pygame.sprite.Sprite):
     min_hours_till_death = 100.0
     max_hours_till_death = 200.0
 
-    def __init__(self, speedLvl, color, width, height, x, y):
+    def __init__(self, speedLvl, color, x, y):
         # Call the parent class (Sprite) constructor
         super(Zombie, self).__init__()
 
-        # Create an image of the block, and fill it with a color.
-        # This could also be an image loaded from the disk.
-        self.image = pygame.Surface([width, height])
-        self.image.fill(color)
-
-        # Fetch the rectangle object that has the dimensions of the image
-        # Update the position of this object by setting the values
-        # of rect.x and rect.y
-        self.rect = self.image.get_rect()
+        self.color = color
         self.x = x
         self.y = y
 
