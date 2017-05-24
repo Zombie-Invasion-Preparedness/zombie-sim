@@ -17,6 +17,7 @@
 import numpy as np
 from humans import Human
 from zombie import Zombie
+from shelter import Shelter
 import pygame
 
 #---------------------------- User defined variables ---------------------------
@@ -25,6 +26,7 @@ runs = 1                # times to run the sim
 pop_human = 50         # initial population of humans
 pop_zombie = 10         # initial population of zombies
 water_stores = 6        # number of water locations
+shelter_locs = 1       # number of shelter locations
 speed_human = 1.75      # speed of humans
 speed_zombie = 2.0      # speed of zombies
 human_spread = .35      # spread of human speed
@@ -36,6 +38,7 @@ radius = 5
 #------------------------------ Constant variables -----------------------------
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+GRAY = (128, 128, 128)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 
@@ -58,6 +61,7 @@ list_humans = []    # holds the human objects
 list_zombies = []   # holds the zombie objects
 list_water = []     # holds water objects
 list_food = []      # holds food objects
+list_shelters = []      # holds shelter objects
 
 water = []
 infected = []
@@ -151,6 +155,13 @@ def move(circle, vec, mag):
                 x = collisionOffset(circle.x, circle.y  - top, vec[1], mag)
                 y = top
 
+    for shelter in list_shelters:
+        if shelter.colliding(x, y):
+            #print("Collision Before: " + str(x) + ", " + str(y) + "; Vec: " + str(vec[0]) + ", " + str(vec[1]))
+            x, y = shelter.collision(circle.x, circle.y, x, y, vec, mag)
+            #print("Collision After: " + str(x) + ", " + str(y) )
+            break # Here we make the assumption that we will only collide once
+
     circle.y = y
     circle.x = x
 
@@ -169,7 +180,19 @@ def calculateSpeed(speed, spread):
     * An integer value corresponding to the speed of the agent
     """
     return np.random.normal(speed, spread)
+    
+def initializeLevel():
+    """A function that initializes all level pieces, such as shelters
 
+    Output:
+    * TODO
+    """
+    for i in range(shelter_locs):
+        y, x = newPos()
+        size = np.random.random(2)*20 + 100
+        shelter = Shelter(GRAY, x, y, size[0], size[1])
+        list_shelters.append(shelter)
+        
 def initializePopulations():
     """A function that initializes all agents
 
@@ -301,6 +324,7 @@ if __name__ == "__main__":
 
         # create the human and zombie circles
         initializePopulations()
+        initializeLevel()
 
         # handle the user clicking the x
         while not done:
@@ -329,7 +353,10 @@ if __name__ == "__main__":
                 # Draw all the spites
                 for sprite in list_humans + list_zombies:
                     pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), radius)
-    
+
+                for sprite in list_shelters:
+                    pygame.draw.rect(screen, sprite.color, pygame.Rect(int(sprite.left), int(sprite.bottom), int(sprite.width),int(sprite.height)))      
+
                 # fps
                 clock.tick(30)
     
