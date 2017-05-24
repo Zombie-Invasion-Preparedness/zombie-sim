@@ -49,7 +49,7 @@ class Shelter:
                 x = self.right
         else:
             if ydiff < -xdiff: #collision on 
-                print("left " + str(xFrom)) 
+                #print("left " + str(xFrom)) 
                 y = self.collisionOffset(yFrom , self.left - xFrom, vec[0], mag)
                 x = self.left
             else: #collision on 
