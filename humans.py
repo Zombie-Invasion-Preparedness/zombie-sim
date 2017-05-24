@@ -27,19 +27,19 @@ class Human:
 
     # ---------------------------- Global Agent Variables ----------------------
     
-    min_food = 0.3 # minimum starting food
-    min_water = 0.3 # minimum starting water
-    max_food = 1.0 # maximum starting food
-    max_water = 1.0 # maximum starting water
-    thirsty = .7 # look for water
-    hungry = .7 # look for food
-    max_consumption = 0.01 # max can eat/drink at one tick
+    min_food = 0.3          #- minimum starting food
+    min_water = 0.3         #- minimum starting water
+    max_food = 1.0          #- maximum starting food
+    max_water = 1.0         #- maximum starting water
+    thirsty = .7            #- look for water
+    hungry = .7             #- look for food
+    max_consumption = 0.01  #- max can eat/drink at one tick
 
     def __init__(self, speedLvl, color, x, y):
         self.color = color
         self.x = x
         self.y = y
-
+        self.distractions = 10
         self.speed = speedLvl
         self.set_levels()
 
@@ -112,3 +112,11 @@ class Human:
             seek_water()
         else:
             seek_shelter()
+
+    def distract_zombie(self):
+        if(self.distractions > 0):
+            self.distractions = self.distractions - 1
+            return random.randint(0,10)
+        else:
+            return 0
+

@@ -43,6 +43,7 @@ class Zombie:
     def set_levels(self):
         self.set_decay_rate()
         self.set_time_till_death()
+        self.set_strength()
         return self
         
     def eat(self, energy):
@@ -54,6 +55,10 @@ class Zombie:
         self.decay_rate = random.uniform(0.5, 1.5)
         return self
 
+    def set_strength(self):
+        self.strength = random.randint(0, 5)
+        return self
+
     # set the time left for a zombie
     def set_time_till_death(self):
         self.time_till_death = random.randint(Zombie.min_hours_till_death, Zombie.max_hours_till_death)
@@ -63,3 +68,9 @@ class Zombie:
     def decay(self):
         self.time_till_death = self.time_till_death - self.decay_rate
         return self
+
+    def encounter(self, power):
+        if(self.strength > power):
+            return True
+        else:
+            return False

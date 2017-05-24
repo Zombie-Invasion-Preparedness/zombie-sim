@@ -22,11 +22,11 @@ import pygame
 #---------------------------- User defined variables ---------------------------
 visual = True
 runs = 1                # times to run the sim
-pop_human = 100         # initial population of humans
-pop_zombie = 12         # initial population of zombies
+pop_human = 50         # initial population of humans
+pop_zombie = 10         # initial population of zombies
 water_stores = 6        # number of water locations
 speed_human = 1.75      # speed of humans
-speed_zombie = 2.       # speed of zombies
+speed_zombie = 2.0      # speed of zombies
 human_spread = .35      # spread of human speed
 zombie_spread = .25     # variance in speed of humans/zombies
 zombie_life = 200       # zombie lifetime
@@ -54,10 +54,10 @@ top = 0.0 + radius
 bottom = HEIGHT - radius
 
 #------------------------------- Global variables ------------------------------
-list_humans = []	# holds the human objects
-list_zombies = []	# holds the zombie objects
-list_water = []		# holds water objects
-list_food = []		# holds food objects
+list_humans = []    # holds the human objects
+list_zombies = []   # holds the zombie objects
+list_water = []     # holds water objects
+list_food = []      # holds food objects
 
 water = []
 infected = []
@@ -199,8 +199,8 @@ def zombifyInfected():
     for human in infected:
         list_humans.remove(human)
         human.speed = np.random.normal(speed_zombie, zombie_spread) # new speed
-        zombie = Zombie(human.speed, RED, human.x, human.y) # make a new zombie agent at the human's location
-        zombie.set_time_till_death() # set the new time of death
+        zombie = Zombie(human.speed, RED, human.x, human.y)         # make a new zombie agent at the human's location
+        zombie.set_time_till_death()                                # set the new time of death
         list_zombies.append(zombie)
 
 def cleanupZombies():
@@ -254,7 +254,7 @@ def moveAndInfectHumans():
     Output:
     * Calls the move() function for the human agents.
     """
-    global infected
+    global infected, decayed
     infected = []
 
     zombieCenters = np.array([zombie.pos() for zombie in list_zombies])
@@ -266,8 +266,16 @@ def moveAndInfectHumans():
         sqdist = ydiff ** 2 + xdiff ** 2
         minDistIdx = np.argmin(sqdist)
         if sqdist[minDistIdx] < two_radius_sq:
-            infected.append(human)
-            continue
+            zpower = list_zombies[minDistIdx].strength
+            power = human.distract_zombie()
+            truth = list_zombies[minDistIdx].encounter(power)
+            if(truth == True):
+                infected.append(human)
+            else:
+                list_zombies.remove(list_zombies[minDistIdx])
+                #decayed.append(list_zombies[minDistIdx])
+        else:
+            pass
 
         vec = (np.sum(ydiff / sqdist), np.sum(xdiff / sqdist))
 
