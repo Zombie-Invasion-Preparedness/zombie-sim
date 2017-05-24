@@ -23,10 +23,10 @@ import pygame
 #---------------------------- User defined variables ---------------------------
 visual = True
 runs = 1                # times to run the sim
-pop_human = 50         # initial population of humans
-pop_zombie = 10         # initial population of zombies
+pop_human = 100         # initial population of humans
+pop_zombie = 20         # initial population of zombies
 water_stores = 6        # number of water locations
-shelter_locs = 1       # number of shelter locations
+shelter_locs = 5        # number of shelter locations
 speed_human = 1.75      # speed of humans
 speed_zombie = 2.0      # speed of zombies
 human_spread = .35      # spread of human speed
@@ -47,7 +47,7 @@ two_radius_sq = (radius * 2) ** 2
 zombie_range_sq = zombie_range ** 2
 
 # screen dimensions
-WIDTH = 1024
+WIDTH = 512
 HEIGHT = 512
 
 # edges of the square, with radius offset
@@ -283,19 +283,21 @@ def moveAndInfectHumans():
     zombieCenters = np.array([zombie.pos() for zombie in list_zombies])
     for human in list_humans:
         vec = (0., 0.)
-
+        if len(zombieCenters) == 0:
+            return
         ydiff = wrapDiffY(human.y - zombieCenters[:, 0])  # Flipped?
         xdiff = wrapDiffX(human.x - zombieCenters[:, 1])
         sqdist = ydiff ** 2 + xdiff ** 2
         minDistIdx = np.argmin(sqdist)
         if sqdist[minDistIdx] < two_radius_sq:
-            zpower = list_zombies[minDistIdx].strength
+            #zpower = list_zombies[minDistIdx].strength
             power = human.distract_zombie()
             truth = list_zombies[minDistIdx].encounter(power)
             if(truth == True):
                 infected.append(human)
             else:
                 list_zombies.remove(list_zombies[minDistIdx])
+                zombieCenters = np.array([zombie.pos() for zombie in list_zombies])
                 #decayed.append(list_zombies[minDistIdx])
         else:
             pass
