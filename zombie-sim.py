@@ -27,11 +27,11 @@ pop_human = 100         # initial population of humans
 pop_zombie = 20         # initial population of zombies
 water_stores = 6        # number of water locations
 shelter_locs = 5        # number of shelter locations
-speed_human = 1.75      # speed of humans
-speed_zombie = 2.0      # speed of zombies
+UWBConfiguration = True # UW Bothell building configuration
+speed_human = 1.75      # base speed of humans
+speed_zombie = 2.0      # base speed of zombies
 human_spread = .35      # spread of human speed
 zombie_spread = .25     # variance in speed of humans/zombies
-zombie_life = 200       # zombie lifetime
 zombie_range = 175      # zombie range of sight
 radius = 5
 
@@ -47,8 +47,8 @@ two_radius_sq = (radius * 2) ** 2
 zombie_range_sq = zombie_range ** 2
 
 # screen dimensions
-WIDTH = 512
-HEIGHT = 512
+WIDTH = 1024
+HEIGHT = 768
 
 # edges of the square, with radius offset
 left = 0. - radius
@@ -124,7 +124,7 @@ def collisionOffset(start, lead, target, mag):
         mag = -mag
     return (start + target * ratio + (1. - ratio) * mag) % 1.
 
-def move(circle, vec, mag):
+def move(agent, vec, mag):
     """Function to handle the movement of agents around the canvas
 
     Method Arguments:
@@ -135,35 +135,27 @@ def move(circle, vec, mag):
     Output:
     * An updated x, y location for the agent based on set conditions
     """
-    y = (circle.y + vec[0]) % HEIGHT
-    x = (circle.x + vec[1]) % WIDTH
-    if not (y < bottom or y > top or x < left or x > right):
-        ydiff = y - HEIGHT/2.
-        xdiff = x - WIDTH/2.
-        if ydiff < xdiff:
-            if ydiff < -xdiff:
-                x = collisionOffset(circle.x, bottom - circle.y , vec[1], mag)
-                y = bottom
-            else:
-                y = collisionOffset(circle.y ,circle.x - right, vec[0], mag)
-                x = right
-        else:
-            if ydiff < -xdiff:
-                y = collisionOffset(circle.y , left - circle.x, vec[0], mag)
-                x = left
-            else:
-                x = collisionOffset(circle.x, circle.y  - top, vec[1], mag)
-                y = top
+    
+    y = (agent.y + vec[0]) % HEIGHT
+    x = (agent.x + vec[1]) % WIDTH
+
+    # If we're in a shelter, don't call collision
+    if agent.__class__.__name__ == "Human":
+        if agent.in_shelter:
+            agent.y = y
+            agent.x = x
+            return
 
     for shelter in list_shelters:
         if shelter.colliding(x, y):
-            #print("Collision Before: " + str(x) + ", " + str(y) + "; Vec: " + str(vec[0]) + ", " + str(vec[1]))
-            x, y = shelter.collision(circle.x, circle.y, x, y, vec, mag)
-            #print("Collision After: " + str(x) + ", " + str(y) )
+            x, y = shelter.collision(agent.x, agent.y, x, y, vec, mag)
+            if agent.__class__.__name__ == "Human":
+                agent.in_shelter = True
+                agent.color = (0, 255, 255)
             break # Here we make the assumption that we will only collide once
 
-    circle.y = y
-    circle.x = x
+    agent.y = y
+    agent.x = x
 
 def calculateSpeed(speed, spread):
     """Calculate the speed of the agent using a normal 
@@ -187,11 +179,25 @@ def initializeLevel():
     Output:
     * TODO
     """
-    for i in range(shelter_locs):
-        y, x = newPos()
-        size = np.random.random(2)*20 + 100
-        shelter = Shelter(GRAY, x, y, size[0], size[1])
-        list_shelters.append(shelter)
+    if UWBConfiguration:
+        xPos = 0
+        yPos = 100
+        list_shelters.append(Shelter(GRAY, 280 + xPos, 150 + yPos, 175, 50)) # UW2
+        list_shelters.append(Shelter(GRAY, 400 + xPos, 75 + yPos, 50, 200))  # DISC
+        list_shelters.append(Shelter(GRAY, 280 + xPos, 310 + yPos, 200, 50)) # UW1
+        list_shelters.append(Shelter(GRAY, 458 + xPos, 310 + yPos, 50, 50))  # LBA
+        list_shelters.append(Shelter(GRAY, 512 + xPos, 240 + yPos, 150, 50)) # LB1
+        list_shelters.append(Shelter(GRAY, 612 + xPos, 335 + yPos, 50, 100)) # LB2
+        list_shelters.append(Shelter(GRAY, 512 + xPos, 416 + yPos, 50, 75))  # ARC
+        list_shelters.append(Shelter(GRAY, 800 + xPos, 310 + yPos, 200, 50)) # CC1
+        list_shelters.append(Shelter(GRAY, 900 + xPos, 150 + yPos, 75, 75))  # CC3-1
+        list_shelters.append(Shelter(GRAY, 820 + xPos, 133 + yPos, 75, 40))  # CC3-2
+    else:
+        for i in range(shelter_locs):
+            y, x = newPos()
+            size = np.random.random(2)*20 + 100
+            shelter = Shelter(GRAY, x, y, size[0], size[1])
+            list_shelters.append(shelter)
         
 def initializePopulations():
     """A function that initializes all agents
@@ -259,7 +265,7 @@ def moveZombies():
         vec = (0., 0.)
 
         # distances between the humans and zombie agents
-        ydiff = wrapDiffY(humanCenters[:, 0] - zombie.y)  # Flipped?
+        ydiff = wrapDiffY(humanCenters[:, 0] - zombie.y)
         xdiff = wrapDiffX(humanCenters[:, 1] - zombie.x)
         sqdist = ydiff ** 2 + xdiff ** 2
         minDistIdx = np.argmin(sqdist)
@@ -281,30 +287,64 @@ def moveAndInfectHumans():
     infected = []
 
     zombieCenters = np.array([zombie.pos() for zombie in list_zombies])
+    shelterCenters = np.array([shelter.pos() for shelter in list_shelters])
     for human in list_humans:
         vec = (0., 0.)
         if len(zombieCenters) == 0:
             return
-        ydiff = wrapDiffY(human.y - zombieCenters[:, 0])  # Flipped?
-        xdiff = wrapDiffX(human.x - zombieCenters[:, 1])
-        sqdist = ydiff ** 2 + xdiff ** 2
-        minDistIdx = np.argmin(sqdist)
-        if sqdist[minDistIdx] < two_radius_sq:
-            #zpower = list_zombies[minDistIdx].strength
-            power = human.distract_zombie()
-            truth = list_zombies[minDistIdx].encounter(power)
-            if(truth == True):
-                infected.append(human)
+
+        # Shelter differences
+        ydiffSh = wrapDiffY(shelterCenters[:, 0] - human.y)
+        xdiffSh = wrapDiffX(shelterCenters[:, 1] - human.x)
+        sqdistSh = ydiffSh ** 2 + xdiffSh ** 2
+        closestShIdx = np.argmin(sqdistSh)
+
+        # Skip running from zombies if this human is inside
+        if not human.in_shelter:
+            # Zombie differences        
+            ydiffZ = wrapDiffY(human.y - zombieCenters[:, 0])  # Flipped?
+            xdiffZ = wrapDiffX(human.x - zombieCenters[:, 1])
+            sqdistZ = ydiffZ ** 2 + xdiffZ ** 2
+            minDistIdx = np.argmin(sqdistZ)
+
+            # Check nearest zombie's distance for infection chance
+            if sqdistZ[minDistIdx] < two_radius_sq:
+                power = human.distract_zombie()
+                truth = list_zombies[minDistIdx].encounter(power)
+                if(truth == True):
+                    infected.append(human)
+                else:
+                    list_zombies.remove(list_zombies[minDistIdx]) # skip decay step
+                    zombieCenters = np.array([zombie.pos() for zombie in list_zombies])
+                    #decayed.append(list_zombies[minDistIdx])
             else:
-                list_zombies.remove(list_zombies[minDistIdx])
-                zombieCenters = np.array([zombie.pos() for zombie in list_zombies])
-                #decayed.append(list_zombies[minDistIdx])
-        else:
-            pass
+                pass
 
-        vec = (np.sum(ydiff / sqdist), np.sum(xdiff / sqdist))
+            if sqdistZ[minDistIdx] > sqdistSh[closestShIdx]: # A shelter is closer than a zombie
+                # Move towards the shelter
+                vec = (ydiffSh[closestShIdx] / sqdistSh[closestShIdx],
+                       xdiffSh[closestShIdx] / sqdistSh[closestShIdx])
+            else:
+                # Move away from all zombies
+                vec = (np.sum(ydiffZ / sqdistZ), np.sum(xdiffZ / sqdistZ))
+                
+            mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / human.speed
+        elif human.destination != (0, 0): # if in a shelter and have a spot
+            if np.allclose((human.y, human.x), human.destination, atol=1):
+                continue # Skip moving this human if it's comfy
+            vec = (wrapDiffY(human.destination[0] - human.y),
+                   wrapDiffX(human.destination[1] - human.x))
+            mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / (human.speed/2)
+        else: # find a spot in the shelter
+            xOffset = np.random.uniform(list_shelters[closestShIdx].left + 10,
+                                        list_shelters[closestShIdx].right - 10)
+            yOffset = np.random.uniform(list_shelters[closestShIdx].bottom + 10,
+                                        list_shelters[closestShIdx].top - 10)
+            human.destination = (yOffset, xOffset)
+            vec = (wrapDiffY(yOffset - human.y),wrapDiffX(xOffset - human.x))
+            
+            mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / (human.speed/2)
 
-        mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / human.speed
         move(human, (vec[0] / mag, vec[1] / mag), human.speed)
 
 #--------------------------------- Main Methods --------------------------------
@@ -353,11 +393,11 @@ if __name__ == "__main__":
                 screen.fill(WHITE)
 
                 # Draw all the spites
-                for sprite in list_humans + list_zombies:
-                    pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), radius)
-
                 for sprite in list_shelters:
                     pygame.draw.rect(screen, sprite.color, pygame.Rect(int(sprite.left), int(sprite.bottom), int(sprite.width),int(sprite.height)))      
+
+                for sprite in list_humans + list_zombies:
+                    pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), radius)
 
                 # fps
                 clock.tick(30)

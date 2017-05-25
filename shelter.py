@@ -31,11 +31,37 @@ class Shelter:
         self.right = x+width/2
         self.bottom = y-height/2
         self.top = y+height/2
-
+        
+    # some methods require coordinates in a (y, x) form
+    def pos(self):
+        return (self.y, self.x)
+    
     def colliding(self, x, y):
+        """Docstring
+    
+        Method Arguments:
+        * x: 
+        * y:
+    
+        Output:
+        * Output vals
+        """
         return not (y < self.bottom or y > self.top or x < self.left or x > self.right)
 
     def collision(self, xFrom, yFrom, xTo, yTo, vec, mag):
+        """Docstring
+    
+        Method Arguments:
+        * xFrom: 
+        * yFrom:
+        * xTo:
+        * yTo:
+        * vec:
+        * mag:
+    
+        Output:
+        * Output vals
+        """
         ydiff = yTo - self.y
         xdiff = xTo - self.x
         if ydiff < xdiff:

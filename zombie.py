@@ -25,8 +25,8 @@ class Zombie:
     # ---------------------------- Global Agent Variables ----------------------
 
     # starting time limit for zombies
-    min_hours_till_death = 100.0
-    max_hours_till_death = 200.0
+    min_hours_till_death = 1000.0
+    max_hours_till_death = 2000.0
 
     def __init__(self, speedLvl, color, x, y):
         self.color = color

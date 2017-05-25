@@ -34,12 +34,14 @@ class Human:
     thirsty = .7            #- look for water
     hungry = .7             #- look for food
     max_consumption = 0.01  #- max can eat/drink at one tick
+    in_shelter = False      #- whether this human is inside
+    destination = (0,0)     #- location destination when safe
 
     def __init__(self, speedLvl, color, x, y):
         self.color = color
         self.x = x
         self.y = y
-        self.distractions = 10
+        self.distractions = 0
         self.speed = speedLvl
         self.set_levels()
 
