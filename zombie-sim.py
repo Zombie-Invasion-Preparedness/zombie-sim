@@ -151,7 +151,6 @@ def move(agent, vec, mag):
             x, y = shelter.collision(agent.x, agent.y, x, y, vec, mag)
             if agent.__class__.__name__ == "Human":
                 agent.in_shelter = True
-                agent.color = (0, 255, 255)
             break # Here we make the assumption that we will only collide once
 
     agent.y = y
@@ -257,6 +256,7 @@ def moveZombies():
     decayed = []
 
     humanCenters = np.array([human.pos() for human in list_humans])
+    humanCenters[np.array([human.infected_tic for human in list_humans]) > 0] = [-100,-100]
     for zombie in list_zombies:
         zombie.decay()  # decay
         if zombie.time_till_death < 0: # cant use == 0
@@ -293,6 +293,10 @@ def moveAndInfectHumans():
         if len(zombieCenters) == 0:
             return
 
+        human.expire() # use food/water
+        if human.infected_tic == 0:
+            infected.append(human)
+
         # Shelter differences
         ydiffSh = wrapDiffY(shelterCenters[:, 0] - human.y)
         xdiffSh = wrapDiffX(shelterCenters[:, 1] - human.x)
@@ -312,7 +316,9 @@ def moveAndInfectHumans():
                 power = human.distract_zombie()
                 truth = list_zombies[minDistIdx].encounter(power)
                 if(truth == True):
-                    infected.append(human)
+                    human.color = (255, 255, 0)
+                    human.infect()
+                    #infected.append(human)
                 else:
                     list_zombies.remove(list_zombies[minDistIdx]) # skip decay step
                     zombieCenters = np.array([zombie.pos() for zombie in list_zombies])
@@ -344,7 +350,6 @@ def moveAndInfectHumans():
             vec = (wrapDiffY(yOffset - human.y),wrapDiffX(xOffset - human.x))
             
             mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / (human.speed/2)
-
         move(human, (vec[0] / mag, vec[1] / mag), human.speed)
 
 #--------------------------------- Main Methods --------------------------------

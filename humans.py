@@ -34,6 +34,8 @@ class Human:
     thirsty = .7            #- look for water
     hungry = .7             #- look for food
     max_consumption = 0.01  #- max can eat/drink at one tick
+    infected_tic = -1       #- non-negative infectedTic counts down to zombie
+    infection_rate = 1      #- rate at which infection progresses
     in_shelter = False      #- whether this human is inside
     destination = (0,0)     #- location destination when safe
 
@@ -81,10 +83,23 @@ class Human:
         self.water = self.water - self.dehydrate_rate
         return self
 
+    def infect(self):
+        self.infected_tic = 200
+        return self
+
+    # infected countdown
+    def infectedCheck(self):
+        if self.infected_tic > 0:
+            self.infected_tic = self.infected_tic - self.infection_rate
+            if self.infected_tic < 0:
+                self.infected_tic = 0
+        return self
+
     # use energy
     def expire(self):
         self.starve()
         self.dehydrate()
+        self.infectedCheck()
         return self
 
     # eat
