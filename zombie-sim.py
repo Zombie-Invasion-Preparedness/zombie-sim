@@ -1,7 +1,10 @@
 #===============================================================================
 #                            General Documentation
 #
-"""This is the long description of the zombie simulation
+"""
+    This class represents the driver for the zombie simulation. Its purpose is 
+    to instantiate the shelter, food, water, human, and zombie agents. It will 
+    also start the instance of pygame that will visualize the simulation.
 """
 
 #-------------------------------------------------------------------------------
@@ -129,8 +132,8 @@ def move(agent, vec, mag):
 
     Method Arguments:
     * agent: The zombie/human agent that will be updated and moved
-    * vec:
-    * mag:
+    * vec: The vector that is made from the agents position and its destination
+    * mag: The magnitude of vec
 
     Output:
     * An updated x, y location for the agent based on set conditions
@@ -173,11 +176,14 @@ def calculateSpeed(speed, spread):
     return np.random.normal(speed, spread)
     
 def initializeLevel():
-    """A function that initializes all level pieces, such as shelters
+    """A function that initializes all level pieces, such as shelters to be is the rough shape of the 
+    UWB campus (per Lin's suggestion)
 
     Output:
-    * TODO
+    * Outputs the level scene to have building objects in the rough shape of the UWB campus
     """
+
+    # if we should draw the UWB campus
     if UWBConfiguration:
         xPos = 0
         yPos = 100

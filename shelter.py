@@ -2,6 +2,14 @@
 #                            General Documentation
 #
 """
+    This class represents the Shelter agents in the Zombie simulation. Each
+    shelter agent has a width and height, as well as a bottom, top, left, 
+    and right side. Shelters can hold a certain number of humans, but can not 
+    hold any zombies. If there is space for a human they may enter the
+    building, and will be shown in the center of it, while zombies will 
+    simply collide with the building and be unable to go inside. Shelters 
+    can be in any shape or position, but for this simulation are in the 
+    general shape of UWB's campus buildings. 
 """
 
 #------------------------------------------------------------------------------
@@ -37,30 +45,32 @@ class Shelter:
         return (self.y, self.x)
     
     def colliding(self, x, y):
-        """Docstring
+        """A function to determine if an agent is colliding with the shelter, this is called in the 
+        move() function when an agent is moving
     
         Method Arguments:
-        * x: 
-        * y:
+        * x: The x position value of the agent that is moving
+        * y: The y position value of the agent that is moving
     
         Output:
-        * Output vals
+        * Returns whether or not the agent's x and y positions where colliding with 
+        the shelter in question
         """
         return not (y < self.bottom or y > self.top or x < self.left or x > self.right)
 
     def collision(self, xFrom, yFrom, xTo, yTo, vec, mag):
-        """Docstring
+        """A function to determine if an agent is colliding with a shelter
     
         Method Arguments:
-        * xFrom: 
-        * yFrom:
-        * xTo:
-        * yTo:
-        * vec:
-        * mag:
+        * xFrom: The current x value of the agent
+        * yFrom: The current y value of the agent
+        * xTo: The x value the agent would like to travel to
+        * yTo: The y value the agent would like to travel to
+        * vec: The vector that is made from the agents position and the shelter position
+        * mag: The magnitude of vec
     
         Output:
-        * Output vals
+        * Return the new x and y values for the colliding agent
         """
         ydiff = yTo - self.y
         xdiff = xTo - self.x
@@ -84,13 +94,14 @@ class Shelter:
         return x,y
 
     def collisionOffset(self, start, lead, target, mag):
-        """Docstring
-    
+        """ A function to determine the offset values for an agent colliding with 
+        a shelter object
+        
         Method Arguments:
-        * start: 
-        * lead:
-        * target:
-        * mag:
+        * start: The starting position value, can be an x or y value
+        * lead: The distance between the agent and the shelter
+        * target: The x or y component of the vector from collision()
+        * mag: The magnitude of vec
     
         Output:
         * Output vals
