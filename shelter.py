@@ -44,7 +44,7 @@ class Shelter:
     def pos(self):
         return (self.y, self.x)
     
-    def colliding(self, x, y):
+    def colliding(self, x, y, radius):
         """A function to determine if an agent is colliding with the shelter, this is called in the 
         move() function when an agent is moving
     
@@ -56,10 +56,12 @@ class Shelter:
         * Returns whether or not the agent's x and y positions where colliding with 
         the shelter in question
         """
-        return not (y < self.bottom or y > self.top or x < self.left or x > self.right)
+        return not (y + radius < self.bottom or y - radius > self.top or
+            x + radius < self.left or x - radius > self.right)
 
-    def collision(self, xFrom, yFrom, xTo, yTo, vec, mag):
-        """A function to determine if an agent is colliding with a shelter
+    def collision(self, xFrom, yFrom, xTo, yTo, vec, mag, radius):
+        """ Determines the resulting position of an agent colliding with
+        this shelter
     
         Method Arguments:
         * xFrom: The current x value of the agent
@@ -83,50 +85,36 @@ class Shelter:
         if xTo >= self.x and ((yTo >= self.y and xdiff >= ydiff) or (yTo < self.y and xdiff >= -ydiff)):
             #collision on right
             y = self.collisionOffset(yFrom, xFrom - self.right, vec[0], mag)
-            x = self.right
+            x = self.right + radius
         elif yTo >= self.y and ((xTo >= self.x and ydiff >= xdiff) or (xTo < self.x and xdiff >= -ydiff)):
             #collision on top
             x = self.collisionOffset(xFrom, yFrom  - self.top, vec[1], mag)
-            y = self.top
+            y = self.top + radius
         elif xTo < self.x and ((yTo >= self.y and xdiff < -ydiff) or (yTo < self.y and xdiff < ydiff)):
             #collision on left
             y = self.collisionOffset(yFrom, self.left - xFrom, vec[0], mag)
-            x = self.left
+            x = self.left - radius
         else:
             #collision on bottom
             x = self.collisionOffset(xFrom, self.bottom - yFrom, vec[1], mag)
-            y = self.bottom
+            y = self.bottom - radius
         return x, y
 
     def collisionOffset(self, start, lead, target, mag):
-        """ A function to determine the offset values for an agent colliding with 
-        a shelter object
+        """ Determines the resulting value of a coordinate of an agent along a
+        colliding edge of this shelter
         
         Method Arguments:
         * start: The starting position value, can be an x or y value
-        * lead: The distance between the agent and the shelter
-        * target: The x or y component of the vector from collision()
-        * mag: The magnitude of vec
+        * lead: The distance before the agent will collide with the shelter
+        * target: The target destination x or y coordinate
+        * mag: The total magnitude of the movement vector
     
         Output:
-        * Output vals
+        * Resulting position coordinate along colliding edge of shelter
         """
-        if mag == 0:
-            print("UH OH!")
-        
         ratio = lead / mag
         if target < 0:
             mag = -mag
         return (start + target * ratio + (1. - ratio) * mag)
-
-
-
-
-
-
-
-
-
-
-
 
