@@ -72,26 +72,31 @@ class Shelter:
         Output:
         * Return the new x and y values for the colliding agent
         """
-        ydiff = yTo - self.y
-        xdiff = xTo - self.x
-        if ydiff < xdiff:
-            if ydiff < -xdiff:#collision on top
-                #print("top")
-                x = self.collisionOffset(xFrom, self.bottom - yFrom , vec[1], mag)
-                y = self.bottom
-            else: #collision on right
-                #print("top " + str(xFrom)) 
-                y = self.collisionOffset(yFrom ,xFrom - self.right, vec[0], mag)
-                x = self.right
+        if xTo >= self.x:
+            xdiff = xTo - self.right
         else:
-            if ydiff < -xdiff: #collision on 
-                #print("left " + str(xFrom)) 
-                y = self.collisionOffset(yFrom , self.left - xFrom, vec[0], mag)
-                x = self.left
-            else: #collision on 
-                x = self.collisionOffset(xFrom, yFrom  - self.top, vec[1], mag)
-                y = self.top
-        return x,y
+            xdiff = xTo - self.left
+        if yTo >= self.y:
+            ydiff = yTo - self.top
+        else:
+            ydiff = yTo - self.bottom
+        if xTo >= self.x and ((yTo >= self.y and xdiff >= ydiff) or (yTo < self.y and xdiff >= -ydiff)):
+            #collision on right
+            y = self.collisionOffset(yFrom, xFrom - self.right, vec[0], mag)
+            x = self.right
+        elif yTo >= self.y and ((xTo >= self.x and ydiff >= xdiff) or (xTo < self.x and xdiff >= -ydiff)):
+            #collision on top
+            x = self.collisionOffset(xFrom, yFrom  - self.top, vec[1], mag)
+            y = self.top
+        elif xTo < self.x and ((yTo >= self.y and xdiff < -ydiff) or (yTo < self.y and xdiff < ydiff)):
+            #collision on left
+            y = self.collisionOffset(yFrom, self.left - xFrom, vec[0], mag)
+            x = self.left
+        else:
+            #collision on bottom
+            x = self.collisionOffset(xFrom, self.bottom - yFrom, vec[1], mag)
+            y = self.bottom
+        return x, y
 
     def collisionOffset(self, start, lead, target, mag):
         """ A function to determine the offset values for an agent colliding with 
