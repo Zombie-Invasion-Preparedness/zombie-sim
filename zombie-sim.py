@@ -21,6 +21,7 @@ import numpy as np
 from humans import Human
 from zombie import Zombie
 from shelter import Shelter
+from foodagent import Food
 import pygame
 
 #---------------------------- User defined variables ---------------------------
@@ -29,6 +30,7 @@ runs = 1                # times to run the sim
 pop_human = 100         # initial population of humans
 pop_zombie = 20         # initial population of zombies
 water_stores = 6        # number of water locations
+food_stores = 6         # number of food locations
 shelter_locs = 5        # number of shelter locations
 UWBConfiguration = True # UW Bothell building configuration
 speed_human = 1.75      # base speed of humans
@@ -44,6 +46,8 @@ WHITE = (255, 255, 255)
 GRAY = (128, 128, 128)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
+WATER_COLOR = (0, 191, 255)
+FOOD_COLOR = (188, 143, 143)
 
 # used in the main loop
 two_radius_sq = (radius * 2) ** 2
@@ -60,10 +64,10 @@ top = 0.0 + radius
 bottom = HEIGHT - radius
 
 #------------------------------- Global variables ------------------------------
-list_humans = []    # holds the human objects
-list_zombies = []   # holds the zombie objects
-list_water = []     # holds water objects
-list_food = []      # holds food objects
+list_humans = []        # holds the human objects
+list_zombies = []       # holds the zombie objects
+list_water = []         # holds water objects
+list_food = []          # holds food objects
 list_shelters = []      # holds shelter objects
 
 water = []
@@ -223,6 +227,20 @@ def initializePopulations():
         zombie = Zombie(speed, RED, x, y)
         list_zombies.append(zombie)
 
+def initializeResources():
+    """ A function that initializes a given number of water and food
+        resource agents.
+
+    Output:
+    *   Each class will have a number of food and water agents, these
+        will be initialized and added to the simulation.
+    """
+    for i in range(food_stores):
+            y, x = newPos()
+            size = np.random.random(2)*20
+            food = Food(FOOD_COLOR, x, y)
+            list_food.append(food)
+
 def zombifyInfected():
     """A method to handle the human agents that have been
     infected and will turn them into zombie agents
@@ -377,6 +395,7 @@ if __name__ == "__main__":
 
         # create the human and zombie circles
         initializePopulations()
+        initializeResources()
         initializeLevel()
 
         # handle the user clicking the x
@@ -410,6 +429,8 @@ if __name__ == "__main__":
                 for sprite in list_humans + list_zombies:
                     pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), radius)
 
+                for sprite in list_food:
+                    pygame.draw.polygon(screen, sprite.color, sprite.coordinates())
                 # fps
                 clock.tick(30)
     

@@ -19,10 +19,30 @@
 #   Assignment: Final Project, Zombie Simulation
 #==============================================================================
 
+import numpy
+
 class Food:
 
-    def __init__(self):
-        self.foodLevel = 3.0
+    def __init__(self, color, x, y):
+        self.color = color
+        self.x = x
+        self.y = y
+        self.height = 10
+
+        self.calculate_coordinates()
+
+    def coordinates(self):
+        return [self.left, self.top, self.right, self.bottom]
+        
+    def calculate_coordinates(self):
+        self.left = [self.x - self.height, self.y]
+        self.top = [self.x, self.y + self.height]
+        self.right = [self.x + self.height, self.y]
+        self.bottom = [self.x, self.y - self.height]
+        return self
+   
+    def pos(self):
+        return (self.y, self.x)
 
     #drains resources from a food agent. Each call of the function will
     #result in a drain of max_level in food resources if that amount is
@@ -36,3 +56,7 @@ class Food:
             retVal = self.foodLevel
             self.foodLevel = 0.0
         return retVal
+        
+    # some methods require coordinates in a (y, x) form
+    def pos(self):
+        return (self.y, self.x)
