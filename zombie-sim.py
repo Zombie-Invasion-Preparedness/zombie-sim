@@ -48,6 +48,7 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 WATER_COLOR = (0, 191, 255)
 FOOD_COLOR = (188, 143, 143)
+YELLOW = (255, 255, 0)
 
 # used in the main loop
 two_radius_sq = (radius * 2) ** 2
@@ -77,15 +78,20 @@ decayed = []
 #-------------------------------- Helper Methods -------------------------------
 
 def newPos():
-    """ Genereate a new random starting position for an agent
+    """ Genereate a new valid random starting position for an agent
 
     Output:
-    * A two element array consisting of two random floats that are inside the 
-    bounaries of the play area defined by 'left', 'right', 'bottom', and 'top'. 
+    * A two element array consisting of two random floats that correspond to a
+    position that does not lie within any shelter 
     """
     while True:
         pos = np.random.random(2) * (HEIGHT, WIDTH)
-        if pos[0] < bottom or pos[0] > top or pos[1] < left or pos[1] > right:
+        valid = True
+        for shelter in list_shelters:
+            if shelter.colliding(pos[1], pos[0], radius):
+                valid = False
+                break
+        if valid:
             return pos
 
 def wrapDiffX(diff):
@@ -114,23 +120,6 @@ def wrapDiffY(diff):
     diff = np.where(diff > HEIGHT/2, -HEIGHT + diff, diff)
     return np.where(diff < -HEIGHT/2, HEIGHT + diff, diff)
 
-def collisionOffset(start, lead, target, mag):
-    """Docstring
-
-    Method Arguments:
-    * start: 
-    * lead:
-    * target:
-    * mag:
-
-    Output:
-    * Output vals
-    """
-    ratio = lead / mag
-    if target < 0:
-        mag = -mag
-    return (start + target * ratio + (1. - ratio) * mag) % 1.
-
 def move(agent, vec, mag):
     """Function to handle the movement of agents around the canvas
 
@@ -154,8 +143,8 @@ def move(agent, vec, mag):
             return
 
     for shelter in list_shelters:
-        if shelter.colliding(x, y):
-            x, y = shelter.collision(agent.x, agent.y, x, y, vec, mag)
+        if shelter.colliding(x, y, radius):
+            x, y = shelter.collision(agent.x, agent.y, x, y, vec, mag, radius)
             if agent.__class__.__name__ == "Human":
                 agent.in_shelter = True
             break # Here we make the assumption that we will only collide once
@@ -309,13 +298,11 @@ def moveAndInfectHumans():
     """
     global infected, decayed
     infected = []
-
+    
     zombieCenters = np.array([zombie.pos() for zombie in list_zombies])
     shelterCenters = np.array([shelter.pos() for shelter in list_shelters])
     for human in list_humans:
         vec = (0., 0.)
-        if len(zombieCenters) == 0:
-            return
 
         human.expire() # use food/water
         if human.infected_tic == 0:
@@ -338,17 +325,14 @@ def moveAndInfectHumans():
             # Check nearest zombie's distance for infection chance
             if sqdistZ[minDistIdx] < two_radius_sq:
                 power = human.distract_zombie()
-                truth = list_zombies[minDistIdx].encounter(power)
-                if(truth == True):
-                    human.color = (255, 255, 0)
+                if list_zombies[minDistIdx].encounter(power):
+                    human.color = YELLOW
                     human.infect()
                     #infected.append(human)
                 else:
                     list_zombies.remove(list_zombies[minDistIdx]) # skip decay step
                     zombieCenters = np.array([zombie.pos() for zombie in list_zombies])
                     #decayed.append(list_zombies[minDistIdx])
-            else:
-                pass
 
             if sqdistZ[minDistIdx] > sqdistSh[closestShIdx]: # A shelter is closer than a zombie
                 # Move towards the shelter
@@ -424,7 +408,7 @@ if __name__ == "__main__":
 
                 # Draw all the spites
                 for sprite in list_shelters:
-                    pygame.draw.rect(screen, sprite.color, pygame.Rect(int(sprite.left), int(sprite.bottom), int(sprite.width),int(sprite.height)))      
+                    pygame.draw.rect(screen, sprite.color, pygame.Rect(int(sprite.left), int(sprite.bottom), int(sprite.width), int(sprite.height)))      
 
                 for sprite in list_humans + list_zombies:
                     pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), radius)
