@@ -32,15 +32,31 @@ class Water:
     def pos(self):
         return (self.y, self.x)
 
+    def colliding(self, x, y, aRadius):
+        """A function to determine if an agent is colliding with a water agent,
+        this is called in the move() function when an agent is moving
+    
+        Method Arguments:
+        * x: The x position value of the agent that is moving
+        * y: The y position value of the agent that is moving
+        * radius: The radius of the moving agent
+    
+        Output:
+        * Returns whether or not the agent's x and y positions where colliding with 
+        the water agent in question
+        """
+        xdiff = x - self.x
+        ydiff = y - self.y
+        sqdist = xdiff ** 2 + ydiff ** 2
+        diff = sqdist ** (1/2)
+        return diff <= (aRadius + self.radius)
+
     #drains resources from a water agent. Each call of the function will
     #result in a drain of max_level in water resources if that amount is
     #available. Otherwise the rest of the water resource will be drained.
     #retVal returned is equal to the amount of water drained.
-    def drain(self, max_level):
-        retVal = 0.01
-        if(self.waterLevel < max_level):
-            self.waterLevel = self.waterLevel - max_level
-        else:
-            retVal = self.waterLevel
-            self.waterLevel = 0.0
-        return retVal
+    def drain(self, amtEaten):
+        print("drain called")
+        self.waterLevel = self.waterLevel - amtEaten
+        self.color = [self.color[0], min(int(self.color[1]*1.2), 255), min(int(self.color[2]*1.5), 255)]
+        return self

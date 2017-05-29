@@ -118,11 +118,15 @@ class Human:
 
     # drink
     def drink(self, amount):
-        if(amount > Human.max_consumption):
-            self.water = self.water + Human.max_consumption
+        if(self.water <= Human.thirsty):
+            if(amount > Human.max_consumption):
+                self.water = self.water + Human.max_consumption
+                return Human.max_consumption
+            else:
+                self.water = self.water + amount
+                return amount
         else:
-            self.water = self.water + amount
-        return self
+            return amount
 
     # not yet polished function for moving human agents. Seeks food if food is
     # below hungry and food is below water. Otherwise if water is below food and

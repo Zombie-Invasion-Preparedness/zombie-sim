@@ -47,8 +47,8 @@ class Food:
 
 
     def colliding(self, x, y, radius):
-        """A function to determine if an agent is colliding with the shelter, this is called in the 
-        move() function when an agent is moving
+        """A function to determine if an agent is colliding with the food agent,
+        this is called in the move() function when an agent is moving
     
         Method Arguments:
         * x: The x position value of the agent that is moving
@@ -56,21 +56,22 @@ class Food:
     
         Output:
         * Returns whether or not the agent's x and y positions where colliding with 
-        the shelter in question
+        the food agent in question
         """
         return not (y + radius < self.bottom[1] or y - radius > self.top[1] or
             x + radius < self.left[0] or x - radius > self.right[0])
 
     def collision(self, xFrom, yFrom, xTo, yTo, vec, mag, radius):
         """ Determines the resulting position of an agent colliding with
-        this shelter
+        this food agent
     
         Method Arguments:
         * xFrom: The current x value of the agent
         * yFrom: The current y value of the agent
         * xTo: The x value the agent would like to travel to
         * yTo: The y value the agent would like to travel to
-        * vec: The vector that is made from the agents position and the shelter position
+        * vec: The vector that is made from the agents position and the food agent
+        position
         * mag: The magnitude of vec
     
         Output:
@@ -105,16 +106,16 @@ class Food:
 
     def collisionOffset(self, start, lead, target, mag):
         """ Determines the resulting value of a coordinate of an agent along a
-        colliding edge of this shelter
+        colliding edge of this food agent
         
         Method Arguments:
         * start: The starting position value, can be an x or y value
-        * lead: The distance before the agent will collide with the shelter
+        * lead: The distance before the agent will collide with the food agent
         * target: The target destination x or y coordinate
         * mag: The total magnitude of the movement vector
     
         Output:
-        * Resulting position coordinate along colliding edge of shelter
+        * Resulting position coordinate along colliding edge of food agent
         """
         ratio = lead / mag
         if target < 0:

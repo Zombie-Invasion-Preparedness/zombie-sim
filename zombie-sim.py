@@ -161,9 +161,8 @@ def move(agent, vec, mag):
             break
 
     for water in list_water:
-        if agent.__class__.__name__ == "Human":
-            if(agent.pos() == water.pos()):
-                print("agent near water")
+        if water.colliding(x, y, radius):
+            if agent.__class__.__name__ == "Human":
                 agent.near_water = True
                 agent.waterAgent = water
             break
@@ -410,7 +409,6 @@ def eatAndDrink():
 
         if human.near_water is True:
             amtDrank = human.drink(human.waterAgent.waterLevel)
-            print("human drank water " + amtDrank)
             human.waterAgent.drain(amtDrank)
             human.near_water = False
             human.foodAgent = None
