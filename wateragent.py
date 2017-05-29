@@ -21,8 +21,16 @@
 
 class Water:
 
-    def __init__(self):
+    def __init__(self, color, x, y):
+        self.color = color
+        self.x = x
+        self.y = y
+        self.radius = 10       
         self.waterLevel = 3.0
+
+   
+    def pos(self):
+        return (self.y, self.x)
 
     #drains resources from a water agent. Each call of the function will
     #result in a drain of max_level in water resources if that amount is

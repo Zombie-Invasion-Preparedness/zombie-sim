@@ -22,6 +22,7 @@ from humans import Human
 from zombie import Zombie
 from shelter import Shelter
 from foodagent import Food
+from wateragent import Water
 import pygame
 
 #---------------------------- User defined variables ---------------------------
@@ -47,7 +48,7 @@ GRAY = (128, 128, 128)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 WATER_COLOR = (0, 191, 255)
-FOOD_COLOR = (188, 143, 143)
+FOOD_COLOR = (255, 128, 0)
 YELLOW = (255, 255, 0)
 
 # used in the main loop
@@ -70,6 +71,7 @@ list_zombies = []       # holds the zombie objects
 list_water = []         # holds water objects
 list_food = []          # holds food objects
 list_shelters = []      # holds shelter objects
+list_water = []
 
 water = []
 infected = []
@@ -226,9 +228,13 @@ def initializeResources():
     """
     for i in range(food_stores):
             y, x = newPos()
-            size = np.random.random(2)*20
             food = Food(FOOD_COLOR, x, y)
             list_food.append(food)
+
+    for i in range(water_stores):
+            y, x = newPos()
+            water = Water(WATER_COLOR, x, y)
+            list_water.append(water)
 
 def zombifyInfected():
     """A method to handle the human agents that have been
@@ -415,6 +421,10 @@ if __name__ == "__main__":
 
                 for sprite in list_food:
                     pygame.draw.polygon(screen, sprite.color, sprite.coordinates())
+
+
+                for sprite in list_water:
+                    pygame.draw.circle(screen, sprite.color,(int(sprite.x), int(sprite.y)), sprite.radius) 
                 # fps
                 clock.tick(30)
     
