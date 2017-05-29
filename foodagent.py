@@ -127,7 +127,7 @@ class Food:
     #retVal returned is equal to the amount of food drained.
     def drain(self, amtEaten):
         self.foodLevel = self.foodLevel - amtEaten
-        self.color = [min(int(self.color[0]*1.1), 255), min(int(self.color[1]*1.1), 255), min(int(self.color[2]*1.1), 255)]
+        self.color = [self.color[0], min(int(self.color[1]*1.2), 255), min(int(self.color[2]*1.5), 255)]
         return self
         
     # some methods require coordinates in a (y, x) form
