@@ -59,6 +59,7 @@ zombie_range_sq = zombie_range ** 2
 WIDTH = 1024
 HEIGHT = 768
 
+
 # edges of the square, with radius offset
 left = 0. - radius
 right = WIDTH + radius
@@ -80,7 +81,7 @@ decayed = []
 #-------------------------------- Helper Methods -------------------------------
 
 def newPos():
-    """ Genereate a new valid random starting position for an agent
+    """ Generate a new valid random starting position for an agent
 
     Output:
     * A two element array consisting of two random floats that correspond to a
@@ -376,6 +377,8 @@ if __name__ == "__main__":
         screen_width = WIDTH
         screen_height = HEIGHT
         screen = pygame.display.set_mode((screen_width, screen_height))
+        pygame.display.set_caption('Team ZIP Zombie-Invasion Simulation') # set the caption of the pygame window
+
 
         # Used to manage how fast the screen updates
         clock = pygame.time.Clock()
