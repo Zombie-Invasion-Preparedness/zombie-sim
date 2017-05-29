@@ -46,6 +46,8 @@ class Human:
         self.distractions = 0
         self.speed = speedLvl
         self.set_levels()
+        self.near_food = False
+        self.near_water = False
 
     # some methods require coordinates in a (y, x) form
     def pos(self):
@@ -104,11 +106,15 @@ class Human:
 
     # eat
     def eat(self, amount):
-        if(amount > Human.max_consumption):
-            self.food = self.food + Human.max_consumption
+        if(self.food <= Human.hungry):
+            if(amount > Human.max_consumption):
+                self.food = self.food + Human.max_consumption
+                return Human.max_consumption
+            else:
+                self.food = self.food + amount
+                return amount
         else:
-            self.food = self.food + amount
-        return self
+            return amount
 
     # drink
     def drink(self, amount):

@@ -48,7 +48,7 @@ GRAY = (128, 128, 128)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 WATER_COLOR = (0, 191, 255)
-FOOD_COLOR = (255, 128, 0)
+FOOD_COLOR = [255, 128, 0]
 YELLOW = (255, 255, 0)
 
 # used in the main loop
@@ -150,6 +150,22 @@ def move(agent, vec, mag):
             if agent.__class__.__name__ == "Human":
                 agent.in_shelter = True
             break # Here we make the assumption that we will only collide once
+
+    for food in list_food:
+        if food.colliding(x, y, radius):
+            x, y = food.collision(agent.x, agent.y, x, y, vec, mag, radius)
+            if agent.__class__.__name__ == "Human":
+                agent.near_food = True
+                agent.foodAgent = food
+            break
+
+    for water in list_water:
+        if agent.__class__.__name__ == "Human":
+            if(agent.pos() == water.pos()):
+                print("agent near water")
+                agent.near_water = True
+                agent.waterAgent = water
+            break
 
     agent.y = y
     agent.x = x
@@ -341,19 +357,36 @@ def moveAndInfectHumans():
                     #decayed.append(list_zombies[minDistIdx])
 
             if sqdistZ[minDistIdx] > sqdistSh[closestShIdx]: # A shelter is closer than a zombie
-                # Move towards the shelter
-                vec = (ydiffSh[closestShIdx] / sqdistSh[closestShIdx],
-                       xdiffSh[closestShIdx] / sqdistSh[closestShIdx])
+                
+                if(human.food < Human.hungry and human.food < human.water):     # if human needs food
+                    vec = moveToFood(human)
+            
+                elif(human.water < Human.thirsty and human.water < human.food):     # if human needs water
+                    vec = moveToWater(human)
+
+                else:
+                    # Move towards the shelter
+                    vec = (ydiffSh[closestShIdx] / sqdistSh[closestShIdx],
+                        xdiffSh[closestShIdx] / sqdistSh[closestShIdx])
             else:
                 # Move away from all zombies
                 vec = (np.sum(ydiffZ / sqdistZ), np.sum(xdiffZ / sqdistZ))
                 
             mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / human.speed
-        elif human.destination != (0, 0): # if in a shelter and have a spot
+        
+        elif human.destination != (0, 0): # if in a shelter and has a spot
             if np.allclose((human.y, human.x), human.destination, atol=1):
                 continue # Skip moving this human if it's comfy
-            vec = (wrapDiffY(human.destination[0] - human.y),
-                   wrapDiffX(human.destination[1] - human.x))
+
+            if(human.food < Human.hungry and human.food < human.water):     # if human needs food    
+                vec = moveToFood(human)
+            
+            elif(human.water < Human.thirsty and human.water < human.food):     # if human needs water
+                vec = moveToWater(human)
+
+            else:
+                vec = (wrapDiffY(human.destination[0] - human.y),
+                       wrapDiffX(human.destination[1] - human.x))
             mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / (human.speed/2)
         else: # find a spot in the shelter
             xOffset = np.random.uniform(list_shelters[closestShIdx].left + 10,
@@ -365,6 +398,42 @@ def moveAndInfectHumans():
             
             mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / (human.speed/2)
         move(human, (vec[0] / mag, vec[1] / mag), human.speed)
+
+def eatAndDrink():
+    for human in list_humans:  
+        if human.near_food is True:
+            amtEaten = human.eat(human.foodAgent.foodLevel)
+            human.foodAgent.drain(amtEaten)
+            human.near_food = False
+            human.foodAgent = None
+
+        if human.near_water is True:
+            amtDrank = human.drink(human.waterAgent.waterLevel)
+            print("human drank water " + amtDrank)
+            human.waterAgent.drain(amtDrank)
+            human.near_water = False
+            human.foodAgent = None
+
+def moveToWater(human):
+    waterCoor = np.array([water.pos() for water in list_water])
+    ydiffWater = wrapDiffY(waterCoor[:, 0] - human.y)
+    xdiffWater = wrapDiffX(waterCoor[:, 1] - human.x)
+    sqdistWater = ydiffWater ** 2 + xdiffWater ** 2
+    closestWaterIdx = np.argmin(sqdistWater)
+
+    return (ydiffWater[closestWaterIdx] / sqdistWater[closestWaterIdx],  # move towards closest water agent
+        xdiffWater[closestWaterIdx] / sqdistWater[closestWaterIdx])
+
+def moveToFood(human):
+    foodCoor = np.array([food.pos() for food in list_food])
+    ydiffFood = wrapDiffY(foodCoor[:, 0] - human.y)
+    xdiffFood = wrapDiffX(foodCoor[:, 1] - human.x)
+    sqdistFood = ydiffFood ** 2 + xdiffFood ** 2
+    closestFoodIdx = np.argmin(sqdistFood)
+
+    return (ydiffFood[closestFoodIdx] / sqdistFood[closestFoodIdx],  # move towards closest food agent
+                        xdiffFood[closestFoodIdx] / sqdistFood[closestFoodIdx])
+
 
 #--------------------------------- Main Methods --------------------------------
 if __name__ == "__main__":
@@ -400,8 +469,8 @@ if __name__ == "__main__":
                 # For every human in the simulation, run away from any zombies
                 #  nearby, and if there is a zombie near enough then this human
                 #  is infected
+                eatAndDrink()
                 moveAndInfectHumans()
-
                 # Turn infected humans into zombies
                 zombifyInfected()
 
