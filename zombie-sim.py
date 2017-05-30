@@ -30,6 +30,7 @@ from model import NonUWBModel
 from model import MoreResourcesModel
 from model import MaxDistractModel
 from model import MinDistractModel
+from analyze import Analyze
 import pygame
 
 # ---------------------------- User defined variables ---------------------------
@@ -61,8 +62,8 @@ FOOD_COLOR = [255, 128, 0]
 YELLOW = (255, 255, 0)
 
 # pygame window icon
-icon = pygame.image.load('TeamZIPicon.png')  # load the file
-pygame.display.set_icon(icon)  # set the pygame window icon
+#icon = pygame.image.load('TeamZIPicon.png')  # load the file
+#pygame.display.set_icon(icon)  # set the pygame window icon
 
 # used in the main loop
 two_radius_sq = (radius * 2) ** 2
