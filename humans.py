@@ -43,7 +43,7 @@ class Human:
         self.color = color
         self.x = x
         self.y = y
-        self.distractions = 0
+        self.distractions = 5
         self.speed = speedLvl
         self.set_levels()
         self.near_food = False
@@ -133,7 +133,7 @@ class Human:
     def distract_zombie(self):
         if(self.distractions > 0):
             self.distractions = self.distractions - 1
-            return random.randint(0,10)
+            return random.randint(0,8)
         else:
             return 0
 

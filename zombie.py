@@ -56,7 +56,7 @@ class Zombie:
         return self
 
     def set_strength(self):
-        self.strength = random.randint(0, 5)
+        self.strength = random.randint(5, 10)
         return self
 
     # set the time left for a zombie
