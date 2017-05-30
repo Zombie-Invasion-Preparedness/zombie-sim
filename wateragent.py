@@ -45,8 +45,16 @@ class Water:
         * Returns whether or not the agent's x and y positions where colliding with 
         the water agent in question
         """
-        xdiff = x - self.x
-        ydiff = y - self.y
+        if(x > self.x):
+            xdiff = x - self.x
+        else:
+            xdiff = self.x - x
+
+        if(y > self.y):
+            ydiff = y - self.y
+        else:
+            ydiff = self.y - y
+
         sqdist = xdiff ** 2 + ydiff ** 2
         diff = sqdist ** (1/2)
         return diff <= (aRadius + self.radius)
@@ -56,7 +64,6 @@ class Water:
     #available. Otherwise the rest of the water resource will be drained.
     #retVal returned is equal to the amount of water drained.
     def drain(self, amtEaten):
-        print("drain called")
         self.waterLevel = self.waterLevel - amtEaten
         self.color = [self.color[0], min(int(self.color[1]*1.2), 255), min(int(self.color[2]*1.5), 255)]
         return self

@@ -154,7 +154,7 @@ def move(agent, vec, mag):
 
     for food in list_food:
         if food.colliding(x, y, radius):
-            x, y = food.collision(agent.x, agent.y, x, y, vec, mag, radius)
+            #x, y = food.collision(agent.x, agent.y, x, y, vec, mag, radius)
             if agent.__class__.__name__ == "Human":
                 agent.near_food = True
                 agent.foodAgent = food
@@ -162,7 +162,9 @@ def move(agent, vec, mag):
 
     for water in list_water:
         if water.colliding(x, y, radius):
+            #x, y = water.collision(agent.x, agent.y, x, y, vec, mag, radius)
             if agent.__class__.__name__ == "Human":
+                agent.color = BLACK
                 agent.near_water = True
                 agent.waterAgent = water
             break
@@ -485,16 +487,17 @@ if __name__ == "__main__":
                 # Draw all the spites
                 for sprite in list_shelters:
                     pygame.draw.rect(screen, sprite.color, pygame.Rect(int(sprite.left), int(sprite.bottom), int(sprite.width), int(sprite.height)))      
-
-                for sprite in list_humans + list_zombies:
-                    pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), radius)
-
+                    
                 for sprite in list_food:
                     pygame.draw.polygon(screen, sprite.color, sprite.coordinates())
 
 
                 for sprite in list_water:
-                    pygame.draw.circle(screen, sprite.color,(int(sprite.x), int(sprite.y)), sprite.radius) 
+                    pygame.draw.circle(screen, sprite.color,(int(sprite.x), int(sprite.y)), sprite.radius)
+                    
+                    
+                for sprite in list_humans + list_zombies:
+                    pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), radius)
                 # fps
                 clock.tick(30)
     

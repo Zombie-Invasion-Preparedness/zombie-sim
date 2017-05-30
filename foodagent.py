@@ -61,71 +61,12 @@ class Food:
         return not (y + radius < self.bottom[1] or y - radius > self.top[1] or
             x + radius < self.left[0] or x - radius > self.right[0])
 
-    def collision(self, xFrom, yFrom, xTo, yTo, vec, mag, radius):
-        """ Determines the resulting position of an agent colliding with
-        this food agent
-    
-        Method Arguments:
-        * xFrom: The current x value of the agent
-        * yFrom: The current y value of the agent
-        * xTo: The x value the agent would like to travel to
-        * yTo: The y value the agent would like to travel to
-        * vec: The vector that is made from the agents position and the food agent
-        position
-        * mag: The magnitude of vec
-    
-        Output:
-        * Return the new x and y values for the colliding agent
-        """
-        if xTo >= self.x:
-            xdiff = xTo - self.right[0]
-        else:
-            xdiff = xTo - self.left[0]
-        if yTo >= self.y:
-            ydiff = yTo - self.top[1]
-        else:
-            ydiff = yTo - self.bottom[1]
-        if xTo >= self.x and ((yTo >= self.y and xdiff >= ydiff) or (yTo < self.y and xdiff >= -ydiff)):
-            #collision on right
-            y = self.collisionOffset(yFrom, xFrom - self.right[1], vec[0], mag)
-            x = self.right[0] + radius
-        elif yTo >= self.y and ((xTo >= self.x and ydiff >= xdiff) or (xTo < self.x and xdiff >= -ydiff)):
-            #collision on top
-            x = self.collisionOffset(xFrom, yFrom  - self.top[0], vec[1], mag)
-            y = self.top[1] + radius
-        elif xTo < self.x and ((yTo >= self.y and xdiff < -ydiff) or (yTo < self.y and xdiff < ydiff)):
-            #collision on left
-            y = self.collisionOffset(yFrom, self.left[1] - xFrom, vec[0], mag)
-            x = self.left[0] - radius
-        else:
-            #collision on bottom
-            x = self.collisionOffset(xFrom, self.bottom[0] - yFrom, vec[1], mag)
-            y = self.bottom[1] - radius
-        return x, y
-
-
-    def collisionOffset(self, start, lead, target, mag):
-        """ Determines the resulting value of a coordinate of an agent along a
-        colliding edge of this food agent
-        
-        Method Arguments:
-        * start: The starting position value, can be an x or y value
-        * lead: The distance before the agent will collide with the food agent
-        * target: The target destination x or y coordinate
-        * mag: The total magnitude of the movement vector
-    
-        Output:
-        * Resulting position coordinate along colliding edge of food agent
-        """
-        ratio = lead / mag
-        if target < 0:
-            mag = -mag
-        return (start + target * ratio + (1. - ratio) * mag)
 
     #drains resources from a food agent. Each call of the function will
     #result in a drain of max_level in food resources if that amount is
     #available. Otherwise the rest of the food resource will be drained.
     #retVal returned is equal to the amount of food drained.
+
     def drain(self, amtEaten):
         self.foodLevel = self.foodLevel - amtEaten
         self.color = [self.color[0], min(int(self.color[1]*1.2), 255), min(int(self.color[2]*1.5), 255)]
