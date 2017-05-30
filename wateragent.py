@@ -60,7 +60,7 @@ class Water:
     #retVal returned is equal to the amount of water drained.
     def drain(self, amtEaten):
         self.waterLevel = self.waterLevel - amtEaten
-        self.color = [self.color[0], min(int(self.color[1]*1.2), 255), min(int(self.color[2]*1.5), 255)]
+        self.color = [self.color[0], min(int(self.color[1]*1.5), 255), min(int(self.color[2]*1.9), 255)]
         if(self.waterLevel <= 0):
             self.color = [0,0,0]
             self.depleted = True

@@ -286,17 +286,23 @@ def cleanupZombies():
         list_zombies.remove(zombie)
 
 def cleanupResources():
-    for water in list_water:
-        if(water.depleted is True):
-            list_water.remove(water)
-        else:
-            pass
+    if not list_water:
+        pass
+    else:
+        for water in list_water:
+            if(water.depleted is True):
+                list_water.remove(water)
+            else:
+                pass
 
-    for food in list_food:
-        if(food.depleted is True):
-            list_food.remove(food)
-        else:
-            pass
+    if not list_food:
+        pass
+    else:
+        for food in list_food:
+            if(food.depleted is True):
+                list_food.remove(food)
+            else:
+                pass
 
 
 def moveZombies():
