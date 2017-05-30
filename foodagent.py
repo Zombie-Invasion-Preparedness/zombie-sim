@@ -29,6 +29,7 @@ class Food:
         self.y = y
         self.height = 10
         self.foodLevel = 1.0
+        self.depleted = False
 
         self.calculate_coordinates()
 
@@ -70,6 +71,9 @@ class Food:
     def drain(self, amtEaten):
         self.foodLevel = self.foodLevel - amtEaten
         self.color = [self.color[0], min(int(self.color[1]*1.2), 255), min(int(self.color[2]*1.5), 255)]
+        if(self.foodLevel <= 0):
+            self.depleted = True
+            self.color = [0,0,0]
         return self
         
     # some methods require coordinates in a (y, x) form

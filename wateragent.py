@@ -27,6 +27,7 @@ class Water:
         self.y = y
         self.radius = 10       
         self.waterLevel = 3.0
+        self.depleted = False
 
    
     def pos(self):
@@ -60,4 +61,7 @@ class Water:
     def drain(self, amtEaten):
         self.waterLevel = self.waterLevel - amtEaten
         self.color = [self.color[0], min(int(self.color[1]*1.2), 255), min(int(self.color[2]*1.5), 255)]
+        if(self.waterLevel <= 0):
+            self.color = [0,0,0]
+            self.depleted = True
         return self

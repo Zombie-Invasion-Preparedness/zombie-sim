@@ -285,6 +285,20 @@ def cleanupZombies():
     for zombie in decayed:
         list_zombies.remove(zombie)
 
+def cleanupResources():
+    for water in list_water:
+        if(water.depleted is True):
+            list_water.remove(water)
+        else:
+            pass
+
+    for food in list_food:
+        if(food.depleted is True):
+            list_food.remove(food)
+        else:
+            pass
+
+
 def moveZombies():
     """Function to handle the movement of zombie agents around
     the canvas and to properly decay the zombie agents. Zombie agents attempt to 
@@ -480,6 +494,7 @@ if __name__ == "__main__":
 
             # Clean up any decayed zombies from the simulation
             cleanupZombies()
+            cleanupResources()
 
             if len(list_zombies) != 0:
                 # For every human in the simulation, run away from any zombies
