@@ -42,6 +42,7 @@ human_spread = .35          # spread of human speed
 zombie_spread = .25         # variance in speed of humans/zombies
 zombie_range = 175          # zombie range of sight
 radius = 5                  # radius of symbols for zombies and humans
+num_distractions = 5        # number of distractions available for humans
 
 # ------------------------------ Constant variables -----------------------------
 BLACK = (0, 0, 0)
@@ -240,7 +241,7 @@ def initializePopulations():
     for i in range(pop_human):
         speed = calculateSpeed(speed_human, human_spread)
         y, x = newPos()
-        human = Human(speed, GREEN, x, y)
+        human = Human(speed, GREEN, x, y, num_distractions)
         list_humans.append(human)
 
     for i in range(pop_zombie):
@@ -536,7 +537,7 @@ def moveToFood(human):
 def initializeParams(model):
     global UWBConfiguration, runs, water_stores, food_stores, ResourceConfig
     global speed_human, speed_zombie, human_spread, zombie_spread, zombie_range, pop_zombie
-    global pop_human, shelter_locs
+    global pop_human, shelter_locs, num_distractions
 
     UWBConfiguration = model.UWB_CONFIG
     runs = 2
@@ -551,6 +552,7 @@ def initializeParams(model):
     pop_zombie = model.ZOMBIE_POP
     pop_human = model.HUMAN_POP
     shelter_locs = model.NUM_SHELTERS
+    num_distractions = model.NUM_DISTRACT
 
 
 # --------------------------------- Main Methods --------------------------------
@@ -559,9 +561,9 @@ if __name__ == "__main__":
     model = DefaultModel()
     initializeParams(model)
 
-    human_time_pop = np.zeros(runs)
-    zombie_time_pop = np.zeros(runs)
-    infected_time_pop = np.zeros(runs)
+    human_time_pop = []
+    zombie_time_pop = []
+    infected_time_pop = []
     time_step = 0
 
     # main simulation loop
@@ -591,9 +593,9 @@ if __name__ == "__main__":
 
         # handle the user clicking the x
         while not done:
-            human_time_pop[time_step] = len(list_humans)
-            zombie_time_pop[time_step] = len(list_zombies)
-            infected_time_pop[time_step] = len(infected)
+            human_time_pop.append(len(list_humans))
+            zombie_time_pop.append(len(list_zombies))
+            infected_time_pop.append(len(infected))
 
             # Move every zombie to the human that is the closest
             moveZombies()

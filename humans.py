@@ -39,11 +39,11 @@ class Human:
     in_shelter = False  # - whether this human is inside
     destination = (0, 0)  # - location destination when safe
 
-    def __init__(self, speedLvl, color, x, y):
+    def __init__(self, speedLvl, color, x, y, distract):
         self.color = color
         self.x = x
         self.y = y
-        self.distractions = 5
+        self.distractions = distract
         self.speed = speedLvl
         self.set_levels()
         self.near_food = False
