@@ -28,20 +28,20 @@ class Zombie:
     min_hours_till_death = 1000.0
     max_hours_till_death = 2000.0
 
-    def __init__(self, speedLvl, color, x, y):
+    def __init__(self, speedLvl, color, x, y, variable_decay):
         self.color = color
         self.x = x
         self.y = y
 
         self.speed = speedLvl
-        self.set_levels()
+        self.set_levels(variable_decay)
 
     # some methods require coordinates in a (y, x) form
     def pos(self):
         return (self.y, self.x)
 
-    def set_levels(self):
-        self.set_decay_rate()
+    def set_levels(self, variable_decay):
+        self.set_decay_rate(variable_decay)
         self.set_time_till_death()
         self.set_strength()
         return self
@@ -51,8 +51,11 @@ class Zombie:
         return self
 
     # set the decay rate
-    def set_decay_rate(self):
-        self.decay_rate = random.uniform(0.5, 1.5)
+    def set_decay_rate(self, variable_decay):
+        if variable_decay:
+            self.decay_rate = random.uniform(0.5, 1.5)
+        else:
+            self.decay_rate = 0
         return self
 
     def set_strength(self):

@@ -30,6 +30,8 @@ from model import NonUWBModel
 from model import MoreResourcesModel
 from model import MaxDistractModel
 from model import MinDistractModel
+from model import SlowZombieModel
+from model import NoDecayModel
 from analyze import Analyze
 import pygame
 
@@ -50,6 +52,7 @@ zombie_spread = .25         # variance in speed of humans/zombies
 zombie_range = 175          # zombie range of sight
 radius = 5                  # radius of symbols for zombies and humans
 num_distractions = 5        # number of distractions available for humans
+variable_decay = False      # whether the decay rate can change
 
 # ------------------------------ Constant variables -----------------------------
 BLACK = (0, 0, 0)
@@ -254,7 +257,7 @@ def initializePopulations():
     for i in range(pop_zombie):
         speed = calculateSpeed(speed_zombie, zombie_spread)
         y, x = newPos()
-        zombie = Zombie(speed, RED, x, y)
+        zombie = Zombie(speed, RED, x, y, variable_decay)
         list_zombies.append(zombie)
 
 
@@ -295,7 +298,7 @@ def zombifyInfected():
     for human in infected:
         list_humans.remove(human)
         human.speed = np.random.normal(speed_zombie, zombie_spread)  # new speed
-        zombie = Zombie(human.speed, RED, human.x, human.y)  # make a new zombie agent at the human's location
+        zombie = Zombie(human.speed, RED, human.x, human.y, variable_decay)  # make a new zombie agent at the human's location
         zombie.set_time_till_death()  # set the new time of death
         list_zombies.append(zombie)
 
@@ -547,7 +550,7 @@ def initializeParams(model):
     global pop_human, shelter_locs, num_distractions
 
     UWBConfiguration = model.UWB_CONFIG
-    runs = 2
+    runs = model.NUM_RUNS
     water_stores = model.NUM_WATER_AGENTS
     food_stores = model.NUM_FOOD_AGENTS
     ResourceConfig = model.RESOURCE_CONFIG
@@ -560,12 +563,16 @@ def initializeParams(model):
     pop_human = model.HUMAN_POP
     shelter_locs = model.NUM_SHELTERS
     num_distractions = model.NUM_DISTRACT
+    variable_decay = model.DECAY_RATE
 
 
 # --------------------------------- Main Methods --------------------------------
 if __name__ == "__main__":
 
-    model = DefaultModel()
+    list_models = [DefaultModel(), FastZombieModel(), MinSpeedDiffModel(), NonUWBModel(), MoreResourcesModel(),MaxDistractModel(), MinDistractModel()]
+
+    #for model in list_models:
+    model = SlowZombieModel()
     initializeParams(model)
 
     # main simulation loop
@@ -656,9 +663,9 @@ if __name__ == "__main__":
             pygame.quit()
             
         if done:
-            print('humans: ' + str(len(list_humans)) + ' zombies: ' + str(len(list_zombies)))
+            print(type(model), 'humans: ' + str(len(list_humans)) + ' zombies: ' + str(len(list_zombies)))
             model.log_data(iterations, len(list_zombies), human_time, zombie_time, infected_time)
             #model.print_data()
-            print(model.zombie_time_pop)
+            #print(model.zombie_time_pop)
             list_zombies = []
             list_humans = []
