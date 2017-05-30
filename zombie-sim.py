@@ -30,8 +30,8 @@ visual = True
 runs = 1                # times to run the sim
 pop_human = 100         # initial population of humans
 pop_zombie = 20         # initial population of zombies
-water_stores = 6        # number of water locations
-food_stores = 6         # number of food locations
+water_stores = 3        # number of water locations
+food_stores = 3         # number of food locations
 shelter_locs = 5        # number of shelter locations
 UWBConfiguration = True # UW Bothell building configuration
 speed_human = 1.75      # base speed of humans
@@ -389,11 +389,18 @@ def moveAndInfectHumans():
             if sqdistZ[minDistIdx] > sqdistSh[closestShIdx]:
                 # if human needs food
                 if(human.food < Human.hungry and human.food < human.water):     
-                    vec = moveToFood(human)
+                    if(len(list_food) > 0):
+                        vec = moveToFood(human)
+                    else:
+                        pass
                     
                 # if human needs water
-                elif(human.water < Human.thirsty and human.water < human.food):     
-                    vec = moveToWater(human)
+                elif(human.water < Human.thirsty and human.water < human.food):
+                    if(len(list_water) > 0):
+                        vec = moveToWater(human)
+                    else:
+                        pass
+                
 
                 else:
                     # Move towards the shelter
@@ -450,24 +457,28 @@ def eatAndDrink():
             human.foodAgent = None
 
 def moveToWater(human):
-    waterCoor = np.array([water.pos() for water in list_water])
-    ydiffWater = wrapDiffY(waterCoor[:, 0] - human.y)
-    xdiffWater = wrapDiffX(waterCoor[:, 1] - human.x)
-    sqdistWater = ydiffWater ** 2 + xdiffWater ** 2
-    closestWaterIdx = np.argmin(sqdistWater)
-
-    return (ydiffWater[closestWaterIdx] / sqdistWater[closestWaterIdx],  # move towards closest water agent
-        xdiffWater[closestWaterIdx] / sqdistWater[closestWaterIdx])
+    if(len(list_water) > 0):
+        waterCoor = np.array([water.pos() for water in list_water])
+        ydiffWater = wrapDiffY(waterCoor[:, 0] - human.y)
+        xdiffWater = wrapDiffX(waterCoor[:, 1] - human.x)
+        sqdistWater = ydiffWater ** 2 + xdiffWater ** 2
+        closestWaterIdx = np.argmin(sqdistWater)
+        return (ydiffWater[closestWaterIdx] / sqdistWater[closestWaterIdx],  # move towards closest water agent
+                xdiffWater[closestWaterIdx] / sqdistWater[closestWaterIdx])
+    else:
+        return human.pos()
 
 def moveToFood(human):
-    foodCoor = np.array([food.pos() for food in list_food])
-    ydiffFood = wrapDiffY(foodCoor[:, 0] - human.y)
-    xdiffFood = wrapDiffX(foodCoor[:, 1] - human.x)
-    sqdistFood = ydiffFood ** 2 + xdiffFood ** 2
-    closestFoodIdx = np.argmin(sqdistFood)
-
-    return (ydiffFood[closestFoodIdx] / sqdistFood[closestFoodIdx],  # move towards closest food agent
-                        xdiffFood[closestFoodIdx] / sqdistFood[closestFoodIdx])
+    if(len(list_food) > 0):
+        foodCoor = np.array([food.pos() for food in list_food])
+        ydiffFood = wrapDiffY(foodCoor[:, 0] - human.y)
+        xdiffFood = wrapDiffX(foodCoor[:, 1] - human.x)
+        sqdistFood = ydiffFood ** 2 + xdiffFood ** 2
+        closestFoodIdx = np.argmin(sqdistFood)
+        return (ydiffFood[closestFoodIdx] / sqdistFood[closestFoodIdx],  # move towards closest food agent
+                xdiffFood[closestFoodIdx] / sqdistFood[closestFoodIdx])
+    else:
+        return human.pos()
 
 
 #--------------------------------- Main Methods --------------------------------
