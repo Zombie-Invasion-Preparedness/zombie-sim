@@ -28,7 +28,7 @@ class DefaultModel:
 	NUM_RUNS = 100			#- number of simulation runs to log for this model
 	NUM_WATER_AGENTS = 6	#- number of water agent locations
 	NUM_FOOD_AGENTS = 6		#- number of food agent locations
-	RESOURCE_CONFIG = 1		#- default random resource configuration
+	RESOURCE_CONFIG = 0		#- default random resource configuration
 	HUMAN_SPEED = 1.75		#- human speed
 	ZOMBIE_SPEED = 2.0		#- zombie speed
 	HUMAN_SPREAD = 0.35		#- spread of human speed
@@ -42,8 +42,8 @@ class DefaultModel:
 
 
 	def __init__(self):
-		self.final_iter = numpy.zeros(NUM_RUNS)
-		self.num_zomb = numpy.zeros(NUM_RUNS)
+		self.final_iter = numpy.zeros(DefaultModel.NUM_RUNS)
+		self.num_zomb = numpy.zeros(DefaultModel.NUM_RUNS)
 		self.count = 0;
 
 	def log_data(nIter, nZombies):
@@ -80,8 +80,8 @@ class FastZombieModel:
 
 
 	def __init__(self):
-		self.final_iter = numpy.zeros(NUM_RUNS)
-		self.num_zomb = numpy.zeros(NUM_RUNS)
+		self.final_iter = numpy.zeros(FastZombieModel.NUM_RUNS)
+		self.num_zomb = numpy.zeros(FastZombieModel.NUM_RUNS)
 		self.count = 0;
 
 	def log_data(nIter, nZombies):
@@ -121,8 +121,8 @@ class ResourceTwoModel:
 
 
 	def __init__(self):
-		self.final_iter = numpy.zeros(NUM_RUNS)
-		self.num_zomb = numpy.zeros(NUM_RUNS)
+		self.final_iter = numpy.zeros(ResourceTwoModel.NUM_RUNS)
+		self.num_zomb = numpy.zeros(ResourceTwoModel.NUM_RUNS)
 		self.count = 0;
 
 	def log_data(nIter, nZombies):

@@ -23,23 +23,25 @@ from zombie import Zombie
 from shelter import Shelter
 from foodagent import Food
 from wateragent import Water
+from model import DefaultModel
 import pygame
 
 # ---------------------------- User defined variables ---------------------------
 visual = True
-runs = 1  # times to run the sim
-pop_human = 100  # initial population of humans
-pop_zombie = 20  # initial population of zombies
-water_stores = 6  # number of water locations
-food_stores = 6  # number of food locations
-shelter_locs = 5  # number of shelter locations
-UWBConfiguration = True  # UW Bothell building configuration
-speed_human = 1.75  # base speed of humans
-speed_zombie = 2.0  # base speed of zombies
-human_spread = .35  # spread of human speed
-zombie_spread = .25  # variance in speed of humans/zombies
-zombie_range = 175  # zombie range of sight
-radius = 5
+runs = 1                    # times to run the sim
+pop_human = 100             # initial population of humans
+pop_zombie = 20             # initial population of zombies
+water_stores = 3            # number of water locations
+food_stores = 3             # number of food locations
+ResourceConfig = 0          # default resource configuration
+shelter_locs = 5            # number of shelter locations
+UWBConfiguration = True     # UW Bothell building configuration
+speed_human = 1.75          # base speed of humans
+speed_zombie = 2.0          # base speed of zombies
+human_spread = .35          # spread of human speed
+zombie_spread = .25         # variance in speed of humans/zombies
+zombie_range = 175          # zombie range of sight
+radius = 5                  # radius of symbols for zombies and humans
 
 # ------------------------------ Constant variables -----------------------------
 BLACK = (0, 0, 0)
@@ -250,21 +252,29 @@ def initializePopulations():
 
 def initializeResources():
     """ A function that initializes a given number of water and food
-        resource agents.
+        resource agents. Shelters must be initialized before resources
 
     Output:
     *   Each class will have a number of food and water agents, these
         will be initialized and added to the simulation.
     """
-    for i in range(food_stores):
-        y, x = newPos()
-        food = Food(FOOD_COLOR, x, y)
-        list_food.append(food)
 
-    for i in range(water_stores):
-        y, x = newPos()
-        water = Water(WATER_COLOR, x, y)
-        list_water.append(water)
+    if ResourceConfig is 0:
+    #-  default resource configuration where resources are randomly placed
+    #-  and can be in and outside of shelter locations
+        
+        for i in range(food_stores):
+            y, x = newPos()
+            food = Food(FOOD_COLOR, x, y)
+            list_food.append(food)
+
+        for i in range(water_stores):
+            y, x = newPos()
+            water = Water(WATER_COLOR, x, y)
+            list_water.append(water)
+    else:
+        pass
+
 
 
 def zombifyInfected():
@@ -523,9 +533,32 @@ def moveToFood(human):
     return (ydiffFood[closestFoodIdx] / sqdistFood[closestFoodIdx],  # move towards closest food agent
             xdiffFood[closestFoodIdx] / sqdistFood[closestFoodIdx])
 
+def initializeParams(model):
+    global UWBConfiguration, runs, water_stores, food_stores, ResourceConfig
+    global speed_human, speed_zombie, human_spread, zombie_spread, zombie_range, pop_zombie
+    global pop_human, shelter_locs
+
+    UWBConfiguration = model.UWB_CONFIG
+    run = model.NUM_RUNS
+    water_stores = model.NUM_WATER_AGENTS
+    food_stores = model.NUM_FOOD_AGENTS
+    ResourceConfig = model.RESOURCE_CONFIG
+    speed_human = model.HUMAN_SPEED
+    speed_zombie = model.ZOMBIE_SPEED
+    human_spread = model.HUMAN_SPREAD
+    zombie_spread = model.ZOMBIE_SPREAD
+    zombie_range = model.ZOMBIE_RANGE
+    pop_zombie = model.ZOMBIE_POP
+    pop_human = model.HUMAN_POP
+    shelter_locs = model.NUM_SHELTERS
+
 
 # --------------------------------- Main Methods --------------------------------
 if __name__ == "__main__":
+    
+    default = DefaultModel()
+    initializeParams(default)
+    
     done = False
     if visual:
         # Initialize pygame
@@ -544,8 +577,12 @@ if __name__ == "__main__":
 
         # create the human and zombie circles
         initializePopulations()
-        initializeResources()
+        
+        # create shelters
         initializeLevel()
+
+        # create food and water resources
+        initializeResources()
 
         # handle the user clicking the x
         while not done:
