@@ -286,6 +286,11 @@ def cleanupZombies():
         list_zombies.remove(zombie)
 
 def cleanupResources():
+    """ Function to remove the used up resources
+
+    Output:
+    * Returns updated resource lists that have had empty resources removed 
+    """
     if not list_water:
         pass
     else:
@@ -443,6 +448,11 @@ def moveAndInfectHumans():
         move(human, (vec[0] / mag, vec[1] / mag), human.speed)
 
 def eatAndDrink():
+    """ Function to deplete resources as they are used by humans
+
+    Output:
+     * Returns updated resources that have been used by human agents
+    """
     for human in list_humans:  
         if human.near_food is True:
             amtEaten = human.eat(human.foodAgent.foodLevel)
