@@ -1,4 +1,4 @@
-#==============================================================================
+# ==============================================================================
 #                            General Documentation
 #
 """
@@ -10,34 +10,34 @@
     based on global data members.
 """
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 #                           Additional Documentation
 #
 #   Authors:    Destiny Boyer, Taran Christensen, Scott Ferguson, Jeremy Luxon
 #   Date:       5/18/2017
 #   Class:      CSS 458 - Computer Simulation
 #   Assignment: Final Project, Zombie Simulation
-#==============================================================================
+# ==============================================================================
 
-#-------------------- Module General Import and Declarations ------------------
+# -------------------- Module General Import and Declarations ------------------
 
 import random
 
-class Human:
 
+class Human:
     # ---------------------------- Global Agent Variables ----------------------
-    
-    min_food = 0.3          #- minimum starting food
-    min_water = 0.3         #- minimum starting water
-    max_food = 1.0          #- maximum starting food
-    max_water = 1.0         #- maximum starting water
-    thirsty = .4            #- look for water
-    hungry = .4             #- look for food
-    max_consumption = 0.05  #- max can eat/drink at one tick
-    infected_tic = -1       #- non-negative infectedTic counts down to zombie
-    infection_rate = 1      #- rate at which infection progresses
-    in_shelter = False      #- whether this human is inside
-    destination = (0,0)     #- location destination when safe
+
+    min_food = 0.3  # - minimum starting food
+    min_water = 0.3  # - minimum starting water
+    max_food = 1.0  # - maximum starting food
+    max_water = 1.0  # - maximum starting water
+    thirsty = .4  # - look for water
+    hungry = .4  # - look for food
+    max_consumption = 0.001  # - max can eat/drink at one tick
+    infected_tic = -1  # - non-negative infectedTic counts down to zombie
+    infection_rate = 1  # - rate at which infection progresses
+    in_shelter = False  # - whether this human is inside
+    destination = (0, 0)  # - location destination when safe
 
     def __init__(self, speedLvl, color, x, y):
         self.color = color
@@ -58,23 +58,23 @@ class Human:
         self.calc_water()
         self.calc_resource_usage()
         return self
-    
+
     # determine how much food to start with
     def calc_food(self):
         self.food = random.uniform(Human.min_food, Human.max_food)
-        #self.food = 9999 # remove
+        # self.food = 9999 # remove
         return self
 
     # determine how much water to start with
     def calc_water(self):
         self.water = random.uniform(Human.min_water, Human.max_water)
-        #self.water = 9999 # remove
+        # self.water = 9999 # remove
         return self
 
     # find out the human's resource usage
     def calc_resource_usage(self):
-        self.dehydrate_rate = self.speed / 4.0 # proportional to speed
-        self.starve_rate = self.speed / 4.0
+        self.dehydrate_rate = self.speed * .0008  # proportional to speed
+        self.starve_rate = self.speed * .0008
         return self
 
     # food used
@@ -108,8 +108,8 @@ class Human:
 
     # eat
     def eat(self, amount):
-        if(self.food <= Human.hungry):
-            if(amount > Human.max_consumption):
+        if (self.food <= Human.hungry):
+            if (amount > Human.max_consumption):
                 self.food = self.food + Human.max_consumption
                 return Human.max_consumption
             else:
@@ -120,8 +120,8 @@ class Human:
 
     # drink
     def drink(self, amount):
-        if(self.water <= Human.thirsty):
-            if(amount > Human.max_consumption):
+        if (self.water <= Human.thirsty):
+            if (amount > Human.max_consumption):
                 self.water = self.water + Human.max_consumption
                 return Human.max_consumption
             else:
@@ -131,9 +131,9 @@ class Human:
             return amount
 
     def distract_zombie(self):
-        if(self.distractions > 0):
+        if (self.distractions > 0):
             self.distractions = self.distractions - 1
-            return random.randint(0,8)
+            return random.randint(0, 8)
         else:
             return 0
 
