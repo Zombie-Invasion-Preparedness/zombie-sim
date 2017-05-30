@@ -28,7 +28,7 @@ class Food:
         self.x = x
         self.y = y
         self.height = 10
-        self.foodLevel = 1.0
+        self.foodLevel = 5.0
         self.depleted = False
 
         self.calculate_coordinates()

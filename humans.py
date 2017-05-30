@@ -33,7 +33,7 @@ class Human:
     max_water = 1.0         #- maximum starting water
     thirsty = .4            #- look for water
     hungry = .4             #- look for food
-    max_consumption = 0.05  #- max can eat/drink at one tick
+    max_consumption = 0.001 #- max can eat/drink at one tick
     infected_tic = -1       #- non-negative infectedTic counts down to zombie
     infection_rate = 1      #- rate at which infection progresses
     in_shelter = False      #- whether this human is inside
@@ -73,8 +73,8 @@ class Human:
 
     # find out the human's resource usage
     def calc_resource_usage(self):
-        self.dehydrate_rate = self.speed / 4.0 # proportional to speed
-        self.starve_rate = self.speed / 4.0
+        self.dehydrate_rate = self.speed * .0008  # proportional to speed
+        self.starve_rate = self.speed * .0008
         return self
 
     # food used

@@ -26,7 +26,7 @@ class Water:
         self.x = x
         self.y = y
         self.radius = 10       
-        self.waterLevel = 3.0
+        self.waterLevel = 8.0
         self.depleted = False
 
    
