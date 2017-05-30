@@ -24,6 +24,12 @@ from shelter import Shelter
 from foodagent import Food
 from wateragent import Water
 from model import DefaultModel
+from model import FastZombieModel
+from model import MinSpeedDiffModel
+from model import NonUWBModel
+from model import MoreResourcesModel
+from model import MaxDistractModel
+from model import MinDistractModel
 import pygame
 
 # ---------------------------- User defined variables ---------------------------
