@@ -356,6 +356,7 @@ def moveAndInfectHumans():
                 if list_zombies[minDistIdx].encounter(power):
                     human.color = YELLOW
                     human.infect()
+                    list_zombies[minDistIdx].eat((human.water + human.food) / 4) # zombie gains more life from eating human
                     #infected.append(human)
                 else:
                     list_zombies.remove(list_zombies[minDistIdx]) # skip decay step
