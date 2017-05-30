@@ -568,9 +568,9 @@ if __name__ == "__main__":
     model = DefaultModel()
     initializeParams(model)
 
-    human_time_pop = []
-    zombie_time_pop = []
-    infected_time_pop = []
+    human_time = []
+    zombie_time = []
+    infected_time = []
     time_step = 0
 
     # main simulation loop
@@ -600,9 +600,9 @@ if __name__ == "__main__":
 
         # handle the user clicking the x
         while not done:
-            human_time_pop.append(len(list_humans))
-            zombie_time_pop.append(len(list_zombies))
-            infected_time_pop.append(len(infected))
+            human_time.append(len(list_humans))
+            zombie_time.append(len(list_zombies))
+            infected_time.append(len(infected))
 
             # Move every zombie to the human that is the closest
             moveZombies()
@@ -658,8 +658,8 @@ if __name__ == "__main__":
             
         if done:
             print('humans: ' + str(len(list_humans)) + ' zombies: ' + str(len(list_zombies)))
-            model.log_data(iterations, len(list_zombies), human_time_pop, zombie_time_pop, infected_time_pop)
-            #model.print_data()
+            model.log_data(iterations, len(list_zombies), human_time, zombie_time, infected_time)
+            model.print_data()
             list_zombies = []
             list_humans = []
 
