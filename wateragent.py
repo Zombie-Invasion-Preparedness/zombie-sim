@@ -45,18 +45,12 @@ class Water:
         * Returns whether or not the agent's x and y positions where colliding with 
         the water agent in question
         """
-        if(x > self.x):
-            xdiff = x - self.x
-        else:
-            xdiff = self.x - x
-
-        if(y > self.y):
-            ydiff = y - self.y
-        else:
-            ydiff = self.y - y
+        xdiff = x - self.x
+        ydiff = y - self.y
 
         sqdist = xdiff ** 2 + ydiff ** 2
-        diff = sqdist ** (1/2)
+        diff = sqdist ** (1./2)
+        
         return diff <= (aRadius + self.radius)
 
     #drains resources from a water agent. Each call of the function will
