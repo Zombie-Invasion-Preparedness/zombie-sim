@@ -25,7 +25,7 @@ class DefaultModel:
 	#----------------------- User-Defined Model Variables ---------------------
 
 	UWB_CONFIG = True		#- building configuration
-	NUM_RUNS = 100			#- number of simulation runs to log for this model
+	NUM_RUNS = 5			#- number of simulation runs to log for this model
 	NUM_WATER_AGENTS = 6	#- number of water agent locations
 	NUM_FOOD_AGENTS = 6		#- number of food agent locations
 	RESOURCE_CONFIG = 0		#- default random resource configuration
@@ -35,18 +35,29 @@ class DefaultModel:
 	ZOMBIE_SPREAD = 0.25	#- spread of zombie speed
 	ZOMBIE_RANGE = 175		#- 'sight' range of zombies
 	ZOMBIE_POP = 20			#- beginning population of zombies
-	HUMAN_POP = 100			#- beginning population of humans
+	HUMAN_POP = 50			#- beginning population of humans
 	NUM_SHELTERS = 5		#- number of shelters available for humans
 
 	#--------------------------------------------------------------------------
 
 
 	def __init__(self):
-		self.final_iter = numpy.zeros(DefaultModel.NUM_RUNS)
-		self.num_zomb = numpy.zeros(DefaultModel.NUM_RUNS)
+		#- current simulation index to log data
 		self.count = 0;
+		
+		#- number of iterations until completion/final state
+		self.final_iter = numpy.zeros(DefaultModel.NUM_RUNS)
+		
+		#- number of zombies still alive when the simulation is complete
+		self.num_zomb = numpy.zeros(DefaultModel.NUM_RUNS)
 
-	def log_data(nIter, nZombies):
+		self.human_time_pop = []
+
+		self.zombie_time_pop = []
+
+		self.infected_time_pop = []
+
+	def log_data(self, nIter, nZombies, hTPop, zTPop, iTPop):
 		"""
 		This method would log the data for each iteration run with the default
 		model. This data would be added to the model object's data collection
@@ -54,10 +65,20 @@ class DefaultModel:
 		collect all the data for simulations of its type allowing for easy
 		collection and analysis
 		"""
-
+		#- sets the data at the current simulation index to the final results
+		#- of the simulation. Increments the simulation index
 		self.final_iter[self.count] = nIter
 		self.num_zomb[self.count] = nZombies
 		self.count = self.count + 1
+		self.human_time_pop.append(hTPop)
+		self.zombie_time_pop.append(zTPop)
+		self.infected_time_pop.append(iTPop)
+        
+	def print_data(self):
+		for i in range(self.count):
+
+			print(self.final_iter[i])
+			print(self.num_zomb[i])
 
 class FastZombieModel:
 	#----------------------- User-Defined Model Variables ---------------------

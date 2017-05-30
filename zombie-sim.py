@@ -27,7 +27,7 @@ from model import DefaultModel
 import pygame
 
 # ---------------------------- User defined variables ---------------------------
-visual = True
+visual = False
 runs = 1                    # times to run the sim
 pop_human = 100             # initial population of humans
 pop_zombie = 20             # initial population of zombies
@@ -539,7 +539,7 @@ def initializeParams(model):
     global pop_human, shelter_locs
 
     UWBConfiguration = model.UWB_CONFIG
-    run = model.NUM_RUNS
+    runs = 2
     water_stores = model.NUM_WATER_AGENTS
     food_stores = model.NUM_FOOD_AGENTS
     ResourceConfig = model.RESOURCE_CONFIG
@@ -555,25 +555,30 @@ def initializeParams(model):
 
 # --------------------------------- Main Methods --------------------------------
 if __name__ == "__main__":
-    
-    default = DefaultModel()
-    initializeParams(default)
-    
-    done = False
-    if visual:
-        # Initialize pygame
-        pygame.init()
-        # Set the height and width of the screen
-        screen_width = WIDTH
-        screen_height = HEIGHT
-        screen = pygame.display.set_mode((screen_width, screen_height))
-        pygame.display.set_caption('Team ZIP Zombie-Invasion Simulation')  # set the caption of the pygame window
 
-        # Used to manage how fast the screen updates
-        clock = pygame.time.Clock()
+    model = DefaultModel()
+    initializeParams(model)
+
+    human_time_pop = np.zeros(runs)
+    zombie_time_pop = np.zeros(runs)
+    infected_time_pop = np.zeros(runs)
+    time_step = 0
 
     # main simulation loop
     for i in range(runs):
+        iterations = 0
+        done = False
+        if visual:
+            # Initialize pygame
+            pygame.init()
+            # Set the height and width of the screen
+            screen_width = WIDTH
+            screen_height = HEIGHT
+            screen = pygame.display.set_mode((screen_width, screen_height))
+            pygame.display.set_caption('Team ZIP Zombie-Invasion Simulation')  # set the caption of the pygame window
+
+            # Used to manage how fast the screen updates
+            clock = pygame.time.Clock()
 
         # create the human and zombie circles
         initializePopulations()
@@ -586,6 +591,10 @@ if __name__ == "__main__":
 
         # handle the user clicking the x
         while not done:
+            human_time_pop[time_step] = len(list_humans)
+            zombie_time_pop[time_step] = len(list_zombies)
+            infected_time_pop[time_step] = len(infected)
+
             # Move every zombie to the human that is the closest
             moveZombies()
 
@@ -628,16 +637,22 @@ if __name__ == "__main__":
 
                 # Go ahead and update the screen with what we've drawn.
                 pygame.display.update()
-
+            
+            iterations = iterations + 1
             # Finish when either humans or zombies "win"
             if len(list_humans) == 0 or len(list_zombies) == 0:
+                done = True
                 break
 
         if visual:
             pygame.quit()
-
-        print('humans: ' + str(len(list_humans)) + ' zombies: ' + str(len(list_zombies)))
+            
         if done:
-            break
+            print('humans: ' + str(len(list_humans)) + ' zombies: ' + str(len(list_zombies)))
+            model.log_data(iterations, len(list_zombies), human_time_pop, zombie_time_pop, infected_time_pop)
+            #model.print_data()
+            list_zombies = []
+            list_humans = []
+
 
 
