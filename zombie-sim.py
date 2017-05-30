@@ -51,6 +51,10 @@ WATER_COLOR = (0, 191, 255)
 FOOD_COLOR = [255, 128, 0]
 YELLOW = (255, 255, 0)
 
+# pygame window icon
+icon = pygame.image.load('TeamZIPicon.png') # load the file
+pygame.display.set_icon(icon)               # set the pygame window icon
+
 # used in the main loop
 two_radius_sq = (radius * 2) ** 2
 zombie_range_sq = zombie_range ** 2
