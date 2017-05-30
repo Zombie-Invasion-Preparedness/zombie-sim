@@ -383,6 +383,8 @@ def moveAndInfectHumans():
                     zombieCenters = np.array([zombie.pos() for zombie in list_zombies])
                     #decayed.append(list_zombies[minDistIdx])
 
+            vec = (np.sum(ydiffZ / sqdistZ), np.sum(xdiffZ / sqdistZ))
+
             # A shelter is closer than a zombie
             if sqdistZ[minDistIdx] > sqdistSh[closestShIdx]:
                 # if human needs food
@@ -397,9 +399,7 @@ def moveAndInfectHumans():
                     # Move towards the shelter
                     vec = (ydiffSh[closestShIdx] / sqdistSh[closestShIdx],
                         xdiffSh[closestShIdx] / sqdistSh[closestShIdx])
-            else:
-                # Move away from all zombies
-                vec = (np.sum(ydiffZ / sqdistZ), np.sum(xdiffZ / sqdistZ))
+
                 
             mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / human.speed
 
