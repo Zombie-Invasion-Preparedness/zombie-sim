@@ -568,13 +568,12 @@ if __name__ == "__main__":
     model = DefaultModel()
     initializeParams(model)
 
-    human_time = []
-    zombie_time = []
-    infected_time = []
-    time_step = 0
-
     # main simulation loop
     for i in range(runs):
+        human_time = []
+        zombie_time = []
+        infected_time = []
+        time_step = 0
         iterations = 0
         done = False
         if visual:
@@ -659,9 +658,7 @@ if __name__ == "__main__":
         if done:
             print('humans: ' + str(len(list_humans)) + ' zombies: ' + str(len(list_zombies)))
             model.log_data(iterations, len(list_zombies), human_time, zombie_time, infected_time)
-            model.print_data()
+            #model.print_data()
+            print(model.zombie_time_pop)
             list_zombies = []
             list_humans = []
-
-
-
