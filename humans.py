@@ -62,11 +62,13 @@ class Human:
     # determine how much food to start with
     def calc_food(self):
         self.food = random.uniform(Human.min_food, Human.max_food)
+        #self.food = 9999 # remove
         return self
 
     # determine how much water to start with
     def calc_water(self):
         self.water = random.uniform(Human.min_water, Human.max_water)
+        #self.water = 9999 # remove
         return self
 
     # find out the human's resource usage

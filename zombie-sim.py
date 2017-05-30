@@ -63,6 +63,8 @@ zombie_range_sq = zombie_range ** 2
 WIDTH = 1024
 HEIGHT = 768
 
+# out of range value
+OUT_OF_RANGE = 99999
 
 # edges of the square, with radius offset
 left = 0. - radius
@@ -141,21 +143,20 @@ def move(agent, vec, mag):
     
     y = (agent.y + vec[0]) % HEIGHT
     x = (agent.x + vec[1]) % WIDTH
-
-    # If we're in a shelter, don't call collision
-    if agent.__class__.__name__ == "Human":
-        if agent.in_shelter:
-            agent.y = y
-            agent.x = x
-            return
-
+    
+    tmpInShelter = False
     for shelter in list_shelters:
         if shelter.colliding(x, y, radius):
-            x, y = shelter.collision(agent.x, agent.y, x, y, vec, mag, radius)
-            if agent.__class__.__name__ == "Human":
-                agent.in_shelter = True
+            # If we're a human we're allowed in buildings
+            if agent.__class__.__name__ != "Human":
+                x, y = shelter.collision(agent.x, agent.y, x, y, vec, mag, radius)
+            tmpInShelter = True
             break # Here we make the assumption that we will only collide once
-
+        
+    # Set boolean of whether this human is or is not in a shelter
+    if agent.__class__.__name__ == "Human":
+        agent.in_shelter = tmpInShelter
+    
     for food in list_food:
         if food.colliding(x, y, radius):
             #x, y = food.collision(agent.x, agent.y, x, y, vec, mag, radius)
@@ -168,7 +169,6 @@ def move(agent, vec, mag):
         if water.colliding(x, y, radius):
             #x, y = water.collision(agent.x, agent.y, x, y, vec, mag, radius)
             if agent.__class__.__name__ == "Human":
-                agent.color = BLACK
                 agent.near_water = True
                 agent.waterAgent = water
             break
@@ -297,7 +297,7 @@ def moveZombies():
     decayed = []
 
     humanCenters = np.array([human.pos() for human in list_humans])
-    humanCenters[np.array([human.infected_tic for human in list_humans]) > 0] = [-100,-100]
+    humanCenters[np.array([human.infected_tic for human in list_humans]) > 0] = [-99999,-99999]
     for zombie in list_zombies:
         zombie.decay()  # decay
         if zombie.time_till_death < 0: # cant use == 0
@@ -362,12 +362,14 @@ def moveAndInfectHumans():
                     zombieCenters = np.array([zombie.pos() for zombie in list_zombies])
                     #decayed.append(list_zombies[minDistIdx])
 
-            if sqdistZ[minDistIdx] > sqdistSh[closestShIdx]: # A shelter is closer than a zombie
-                
-                if(human.food < Human.hungry and human.food < human.water):     # if human needs food
+            # A shelter is closer than a zombie
+            if sqdistZ[minDistIdx] > sqdistSh[closestShIdx]:
+                # if human needs food
+                if(human.food < Human.hungry and human.food < human.water):     
                     vec = moveToFood(human)
-            
-                elif(human.water < Human.thirsty and human.water < human.food):     # if human needs water
+                    
+                # if human needs water
+                elif(human.water < Human.thirsty and human.water < human.food):     
                     vec = moveToWater(human)
 
                 else:
@@ -379,22 +381,29 @@ def moveAndInfectHumans():
                 vec = (np.sum(ydiffZ / sqdistZ), np.sum(xdiffZ / sqdistZ))
                 
             mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / human.speed
-        
-        elif human.destination != (0, 0): # if in a shelter and has a spot
-            if np.allclose((human.y, human.x), human.destination, atol=1):
-                continue # Skip moving this human if it's comfy
 
-            if(human.food < Human.hungry and human.food < human.water):     # if human needs food    
+        # if in a shelter and has a spot
+        elif human.destination != (0, 0): 
+            # if human needs food  
+            if(human.food < Human.hungry and human.food < human.water):       
                 vec = moveToFood(human)
-            
-            elif(human.water < Human.thirsty and human.water < human.food):     # if human needs water
+
+            # if human needs water            
+            elif(human.water < Human.thirsty and human.water < human.food):     
                 vec = moveToWater(human)
 
+            # Skip moving this human if it's comfy
+            elif np.allclose((human.y, human.x), human.destination, atol=1):
+                continue 
+
+            # Move toward the shelter
             else:
                 vec = (wrapDiffY(human.destination[0] - human.y),
                        wrapDiffX(human.destination[1] - human.x))
             mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / (human.speed/2)
-        else: # find a spot in the shelter
+            
+        # find a spot in the shelter    
+        else: 
             xOffset = np.random.uniform(list_shelters[closestShIdx].left + 10,
                                         list_shelters[closestShIdx].right - 10)
             yOffset = np.random.uniform(list_shelters[closestShIdx].bottom + 10,
