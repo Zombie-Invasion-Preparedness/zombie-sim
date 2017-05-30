@@ -349,20 +349,8 @@ def moveAndInfectHumans():
     Output:
     * Calls the move() function for the human agents.
     """
-    global infected, decayed, list_food, list_water
+    global infected, decayed
     infected = []
-
-    # used for making sure there are lists to look at
-    # empty lists throws an error, this prevents that
-    waterLeft = len(list_water)
-    foodLeft = len(list_food)
-
-    # kill off the humans that have run out of energy
-    for human in list_humans:
-        if(human.food < 0.0 or human.water < 0.0):
-            list_humans.remove(human)
-
-
     
     zombieCenters = np.array([zombie.pos() for zombie in list_zombies])
     shelterCenters = np.array([shelter.pos() for shelter in list_shelters])
@@ -402,20 +390,14 @@ def moveAndInfectHumans():
 
             vec = (np.sum(ydiffZ / sqdistZ), np.sum(xdiffZ / sqdistZ))
 
-            # a human is desperate for food/water
-            if (human.water < 1.0 and waterLeft != 0):
-                vec = moveToWater(human)
-            if (human.food < 1.0 and foodLeft != 0):
-                vec = moveToFood(human)
-
             # A shelter is closer than a zombie
-            elif sqdistZ[minDistIdx] > sqdistSh[closestShIdx]:
+            if sqdistZ[minDistIdx] > sqdistSh[closestShIdx]:
                 # if human needs food
-                if(human.food < Human.hungry and human.food < human.water and foodLeft != 0):
+                if(human.food < Human.hungry and human.food < human.water):     
                     vec = moveToFood(human)
                     
                 # if human needs water
-                elif(human.water < Human.thirsty and human.water < human.food and waterLeft != 0):
+                elif(human.water < Human.thirsty and human.water < human.food):     
                     vec = moveToWater(human)
 
                 else:
@@ -423,20 +405,17 @@ def moveAndInfectHumans():
                     vec = (ydiffSh[closestShIdx] / sqdistSh[closestShIdx],
                         xdiffSh[closestShIdx] / sqdistSh[closestShIdx])
 
-            else:
-                pass
-
                 
             mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / human.speed
 
         # if in a shelter and has a spot
         elif human.destination != (0, 0): 
             # if human needs food  
-            if(human.food < Human.hungry and human.food < human.water and foodLeft != 0):
+            if(human.food < Human.hungry and human.food < human.water):       
                 vec = moveToFood(human)
 
             # if human needs water            
-            elif(human.water < Human.thirsty and human.water < human.food and waterLeft != 0):
+            elif(human.water < Human.thirsty and human.water < human.food):     
                 vec = moveToWater(human)
 
             # Skip moving this human if it's comfy
@@ -460,8 +439,6 @@ def moveAndInfectHumans():
             
             mag = np.sqrt(vec[0] ** 2 + vec[1] ** 2) / (human.speed/2)
         move(human, (vec[0] / mag, vec[1] / mag), human.speed)
-
-
 
 def eatAndDrink():
     """ Function to deplete resources as they are used by humans
