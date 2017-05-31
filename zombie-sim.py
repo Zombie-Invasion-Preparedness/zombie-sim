@@ -26,12 +26,10 @@ from wateragent import Water
 from model import DefaultModel
 from model import FastZombieModel
 from model import MinSpeedDiffModel
-from model import NonUWBModel
 from model import MoreResourcesModel
 from model import MaxDistractModel
 from model import MinDistractModel
 from model import SlowZombieModel
-from model import NoDecayModel
 from analyze import Analyze
 import pygame
 
@@ -52,14 +50,13 @@ zombie_spread = .25         # variance in speed of humans/zombies
 zombie_range = 175          # zombie range of sight
 radius = 5                  # radius of symbols for zombies and humans
 num_distractions = 5        # number of distractions available for humans
-variable_decay = False      # whether the decay rate can change
 
 # ------------------------------ Constant variables -----------------------------
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-GRAY = (128, 128, 128)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
+SHELTER_COLOR = (128, 128, 128)
+HUMAN_COLOR = (0, 255, 0)
+ZOMBIE_COLOR = (255, 0, 0)
 WATER_COLOR = (0, 191, 255)
 FOOD_COLOR = [255, 128, 0]
 YELLOW = (255, 255, 0)
@@ -223,16 +220,16 @@ def initializeLevel():
     if UWBConfiguration:
         xPos = 0
         yPos = 100
-        list_shelters.append(Shelter(GRAY, 280 + xPos, 150 + yPos, 175, 50))  # UW2
-        list_shelters.append(Shelter(GRAY, 400 + xPos, 75 + yPos, 50, 200))  # DISC
-        list_shelters.append(Shelter(GRAY, 280 + xPos, 310 + yPos, 200, 50))  # UW1
-        list_shelters.append(Shelter(GRAY, 458 + xPos, 310 + yPos, 50, 50))  # LBA
-        list_shelters.append(Shelter(GRAY, 512 + xPos, 240 + yPos, 150, 50))  # LB1
-        list_shelters.append(Shelter(GRAY, 612 + xPos, 335 + yPos, 50, 100))  # LB2
-        list_shelters.append(Shelter(GRAY, 512 + xPos, 416 + yPos, 50, 75))  # ARC
-        list_shelters.append(Shelter(GRAY, 800 + xPos, 310 + yPos, 200, 50))  # CC1
-        list_shelters.append(Shelter(GRAY, 900 + xPos, 150 + yPos, 75, 75))  # CC3-1
-        list_shelters.append(Shelter(GRAY, 820 + xPos, 133 + yPos, 75, 40))  # CC3-2
+        list_shelters.append(Shelter(SHELTER_COLOR, 280 + xPos, 150 + yPos, 175, 50))  # UW2
+        list_shelters.append(Shelter(SHELTER_COLOR, 400 + xPos, 75 + yPos, 50, 200))  # DISC
+        list_shelters.append(Shelter(SHELTER_COLOR, 280 + xPos, 310 + yPos, 200, 50))  # UW1
+        list_shelters.append(Shelter(SHELTER_COLOR, 458 + xPos, 310 + yPos, 50, 50))  # LBA
+        list_shelters.append(Shelter(SHELTER_COLOR, 512 + xPos, 240 + yPos, 150, 50))  # LB1
+        list_shelters.append(Shelter(SHELTER_COLOR, 612 + xPos, 335 + yPos, 50, 100))  # LB2
+        list_shelters.append(Shelter(SHELTER_COLOR, 512 + xPos, 416 + yPos, 50, 75))  # ARC
+        list_shelters.append(Shelter(SHELTER_COLOR, 800 + xPos, 310 + yPos, 200, 50))  # CC1
+        list_shelters.append(Shelter(SHELTER_COLOR, 900 + xPos, 150 + yPos, 75, 75))  # CC3-1
+        list_shelters.append(Shelter(SHELTER_COLOR, 820 + xPos, 133 + yPos, 75, 40))  # CC3-2
     else:
         for i in range(shelter_locs):
             y, x = newPos()
@@ -251,13 +248,13 @@ def initializePopulations():
     for i in range(pop_human):
         speed = calculateSpeed(speed_human, human_spread)
         y, x = newPos()
-        human = Human(speed, GREEN, x, y, num_distractions)
+        human = Human(speed, HUMAN_COLOR, x, y, num_distractions)
         list_humans.append(human)
 
     for i in range(pop_zombie):
         speed = calculateSpeed(speed_zombie, zombie_spread)
         y, x = newPos()
-        zombie = Zombie(speed, RED, x, y, variable_decay)
+        zombie = Zombie(speed, ZOMBIE_COLOR, x, y, variable_decay)
         list_zombies.append(zombie)
 
 
@@ -298,7 +295,7 @@ def zombifyInfected():
     for human in infected:
         list_humans.remove(human)
         human.speed = np.random.normal(speed_zombie, zombie_spread)  # new speed
-        zombie = Zombie(human.speed, RED, human.x, human.y, variable_decay)  # make a new zombie agent at the human's location
+        zombie = Zombie(human.speed, ZOMBIE_COLOR, human.x, human.y, variable_decay)  # make a new zombie agent at the human's location
         zombie.set_time_till_death()  # set the new time of death
         list_zombies.append(zombie)
 
@@ -545,6 +542,13 @@ def moveToFood(human):
             xdiffFood[closestFoodIdx] / sqdistFood[closestFoodIdx])
 
 def initializeParams(model):
+    """ Function takes in an object model and initializes all of the global user-defined
+        variables for the simulation with the variables specific to the model class.
+
+    Output:
+        * initializes all global user-defined variables
+    """
+
     global UWBConfiguration, runs, water_stores, food_stores, ResourceConfig
     global speed_human, speed_zombie, human_spread, zombie_spread, zombie_range, pop_zombie
     global pop_human, shelter_locs, num_distractions
@@ -563,109 +567,105 @@ def initializeParams(model):
     pop_human = model.HUMAN_POP
     shelter_locs = model.NUM_SHELTERS
     num_distractions = model.NUM_DISTRACT
-    variable_decay = model.DECAY_RATE
 
 
 # --------------------------------- Main Methods --------------------------------
 if __name__ == "__main__":
 
-    list_models = [DefaultModel(), FastZombieModel(), MinSpeedDiffModel(), NonUWBModel(), MoreResourcesModel(),MaxDistractModel(), MinDistractModel()]
+    list_models = [DefaultModel(), FastZombieModel(), MinSpeedDiffModel(), SlowZombieModel(), MoreResourcesModel(), MaxDistractModel(), MinDistractModel()]
 
-    #for model in list_models:
-    model = SlowZombieModel()
-    initializeParams(model)
+    for model in list_models:
+        #for model in list_models
+        initializeParams(model)
+        # main simulation loop
+        for i in range(runs):
+            human_time = []
+            zombie_time = []
+            infected_time = []
+            time_step = 0
+            iterations = 0
+            done = False
+            if visual:
+                # Initialize pygame
+                pygame.init()
+                # Set the height and width of the screen
+                screen_width = WIDTH
+                screen_height = HEIGHT
+                screen = pygame.display.set_mode((screen_width, screen_height))
+                pygame.display.set_caption('Team ZIP Zombie-Invasion Simulation')  # set the caption of the pygame window
 
-    # main simulation loop
-    for i in range(runs):
-        human_time = []
-        zombie_time = []
-        infected_time = []
-        time_step = 0
-        iterations = 0
-        done = False
-        if visual:
-            # Initialize pygame
-            pygame.init()
-            # Set the height and width of the screen
-            screen_width = WIDTH
-            screen_height = HEIGHT
-            screen = pygame.display.set_mode((screen_width, screen_height))
-            pygame.display.set_caption('Team ZIP Zombie-Invasion Simulation')  # set the caption of the pygame window
+                # Used to manage how fast the screen updates
+                clock = pygame.time.Clock()
 
-            # Used to manage how fast the screen updates
-            clock = pygame.time.Clock()
+            # create the human and zombie circles
+            initializePopulations()
+            
+            # create shelters
+            initializeLevel()
 
-        # create the human and zombie circles
-        initializePopulations()
-        
-        # create shelters
-        initializeLevel()
+            # create food and water resources
+            initializeResources()
 
-        # create food and water resources
-        initializeResources()
+            # handle the user clicking the x
+            while not done:
+                human_time.append(len(list_humans))
+                zombie_time.append(len(list_zombies))
+                infected_time.append(len(infected))
 
-        # handle the user clicking the x
-        while not done:
-            human_time.append(len(list_humans))
-            zombie_time.append(len(list_zombies))
-            infected_time.append(len(infected))
+                # Move every zombie to the human that is the closest
+                moveZombies()
 
-            # Move every zombie to the human that is the closest
-            moveZombies()
+                # Clean up any decayed zombies from the simulation
+                cleanupZombies()
+                cleanupResources()
 
-            # Clean up any decayed zombies from the simulation
-            cleanupZombies()
-            cleanupResources()
+                if len(list_zombies) != 0:
+                    # For every human in the simulation, run away from any zombies
+                    #  nearby, and if there is a zombie near enough then this human
+                    #  is infected
+                    eatAndDrink()
+                    moveAndInfectHumans()
+                    # Turn infected humans into zombies
+                    zombifyInfected()
 
-            if len(list_zombies) != 0:
-                # For every human in the simulation, run away from any zombies
-                #  nearby, and if there is a zombie near enough then this human
-                #  is infected
-                eatAndDrink()
-                moveAndInfectHumans()
-                # Turn infected humans into zombies
-                zombifyInfected()
+                if visual:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            done = True
+                    # Clear the screen
+                    screen.fill(WHITE)
+
+                    # Draw all the spites
+                    for sprite in list_shelters:
+                        pygame.draw.rect(screen, sprite.color,
+                                         pygame.Rect(int(sprite.left), int(sprite.bottom), int(sprite.width),
+                                                     int(sprite.height)))
+
+                    for sprite in list_food:
+                        pygame.draw.polygon(screen, sprite.color, sprite.coordinates())
+
+                    for sprite in list_water:
+                        pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), sprite.radius)
+
+                    for sprite in list_humans + list_zombies:
+                        pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), radius)
+                    # fps
+                    clock.tick(30)
+
+                    # Go ahead and update the screen with what we've drawn.
+                    pygame.display.update()
+                
+                iterations = iterations + 1
+                # Finish when either humans or zombies "win"
+                if len(list_humans) == 0 or len(list_zombies) == 0:
+                    done = True
+                    break
 
             if visual:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        done = True
-                # Clear the screen
-                screen.fill(WHITE)
-
-                # Draw all the spites
-                for sprite in list_shelters:
-                    pygame.draw.rect(screen, sprite.color,
-                                     pygame.Rect(int(sprite.left), int(sprite.bottom), int(sprite.width),
-                                                 int(sprite.height)))
-
-                for sprite in list_food:
-                    pygame.draw.polygon(screen, sprite.color, sprite.coordinates())
-
-                for sprite in list_water:
-                    pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), sprite.radius)
-
-                for sprite in list_humans + list_zombies:
-                    pygame.draw.circle(screen, sprite.color, (int(sprite.x), int(sprite.y)), radius)
-                # fps
-                clock.tick(30)
-
-                # Go ahead and update the screen with what we've drawn.
-                pygame.display.update()
-            
-            iterations = iterations + 1
-            # Finish when either humans or zombies "win"
-            if len(list_humans) == 0 or len(list_zombies) == 0:
-                done = True
-                break
-
-        if visual:
-            pygame.quit()
-            
-        if done:
-            print(type(model), 'humans: ' + str(len(list_humans)) + ' zombies: ' + str(len(list_zombies)))
-            model.log_data(iterations, len(list_zombies), human_time, zombie_time, infected_time)
-            #model.print_data()
-            #print(model.zombie_time_pop)
-            list_zombies = []
-            list_humans = []
+                pygame.quit()
+                
+            if done:
+                print(type(model), 'humans: ' + str(len(list_humans)) + ' zombies: ' + str(len(list_zombies)))
+                #model.log_data(iterations, len(list_zombies), human_time, zombie_time, infected_time)
+                list_zombies = []
+                list_humans = []

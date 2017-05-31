@@ -23,7 +23,7 @@ class Analyze:
         avgZoms = np.mean(avgZoms,0)
         avgHums = np.mean(avgHums,0)
         avgInf = np.mean(avgInf,0)
-    
+
         plt.plot(timeSteps,avgZoms, 'r')
         plt.plot(timeSteps,avgHums, 'g')
         plt.plot(timeSteps,avgInf, 'y')
